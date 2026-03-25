@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 119 Monthly Safety Inspection</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #1a1a1a; }
+.app-header { background: #2c3e50; color: white; padding: 16px 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+.app-header h1 { font-size: 17px; font-weight: 700; line-height: 1.2; }
+.app-header p { font-size: 12px; opacity: 0.75; margin-top: 2px; }
+.progress-bar-wrap { background: rgba(255,255,255,0.2); height: 4px; border-radius: 2px; margin-top: 10px; }
+.progress-bar { background: #e8c84a; height: 4px; border-radius: 2px; transition: width 0.4s ease; }
+.section-tabs { display: flex; background: #fff; border-bottom: 2px solid #e0e0e0; overflow-x: auto; scrollbar-width: none; }
+.section-tabs::-webkit-scrollbar { display: none; }
+.tab { padding: 10px 14px; font-size: 12px; font-weight: 600; color: #666; white-space: nowrap; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+.tab.active { color: #2c3e50; border-bottom-color: #2c3e50; }
+.tab.completed { color: #e8c84a; border-bottom-color: #e8c84a; }
+.content { max-width: 680px; margin: 0 auto; padding: 16px; }
+.section-page { display: none; }
+.section-page.active { display: block; }
+.truck-photo { width: 100%; border-radius: 12px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+.card { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.card h2 { font-size: 16px; font-weight: 700; color: #2c3e50; margin-bottom: 4px; }
+.card .subtitle { font-size: 12px; color: #666; margin-bottom: 16px; }
+.field-row { margin-bottom: 14px; }
+.field-row label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 5px; }
+.field-row input, .field-row textarea, .field-row select { width: 100%; border: 1.5px solid #ddd; border-radius: 8px; padding: 10px 12px; font-size: 14px; color: #1a1a1a; background: #fafafa; }
+.field-row input:focus, .field-row textarea:focus, .field-row select:focus { outline: none; border-color: #2c3e50; background: #fff; }
+.field-row textarea { min-height: 70px; resize: vertical; }
+.required-star { color: #c0392b; }
+.inspect-item { border: 1.5px solid #e8e8e8; border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+.inspect-item.pass { border-color: #52b788; background: #f0fdf4; }
+.inspect-item.fail { border-color: #e74c3c; background: #fdf2f2; }
+.inspect-item.na { border-color: #bbb; background: #f9f9f9; }
+.item-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.item-label { font-size: 14px; font-weight: 600; color: #222; flex: 1; line-height: 1.3; }
+.item-sub { font-size: 12px; color: #666; margin-top: 2px; font-weight: 400; }
+.toggle-group { display: flex; gap: 6px; flex-shrink: 0; }
+.toggle-btn { padding: 6px 10px; border-radius: 6px; border: 1.5px solid #ddd; background: #fff; font-size: 11px; font-weight: 700; cursor: pointer; color: #666; }
+.toggle-btn.pass-btn.selected { background: #2c3e50; border-color: #2c3e50; color: #fff; }
+.toggle-btn.fail-btn.selected { background: #c0392b; border-color: #c0392b; color: #fff; }
+.toggle-btn.na-btn.selected { background: #888; border-color: #888; color: #fff; }
+.item-notes { margin-top: 10px; }
+.item-notes input { width: 100%; border: 1.5px solid #ddd; border-radius: 7px; padding: 8px 10px; font-size: 13px; background: #fff; }
+.photo-upload-btn { margin-top: 8px; display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; background: #f0f2f5; border: 1.5px dashed #bbb; border-radius: 7px; font-size: 12px; color: #555; cursor: pointer; }
+.photo-preview { max-width: 120px; max-height: 90px; border-radius: 6px; margin-top: 6px; }
+input[type="file"] { display: none; }
+.info-box { background: #eaf0fb; border: 1.5px solid #2c3e50; border-radius: 10px; padding: 14px; margin-bottom: 14px; font-size: 13px; color: #2c3e50; line-height: 1.6; }
+.info-box strong { display: block; margin-bottom: 6px; font-size: 14px; }
+.warn-box { background: #fff3cd; border: 1.5px solid #f0ad4e; border-radius: 10px; padding: 14px; margin-bottom: 14px; font-size: 13px; color: #664d03; line-height: 1.6; }
+.warn-box strong { display: block; margin-bottom: 4px; }
+.step-list { list-style: none; counter-reset: step-counter; margin: 10px 0; }
+.step-list li { counter-increment: step-counter; display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; }
+.step-list li::before { content: counter(step-counter); background: #2c3e50; color: white; width: 26px; height: 26px; border-radius: 50%; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.step-text { font-size: 13px; color: #222; line-height: 1.6; }
+.step-text strong { color: #2c3e50; }
+.mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+.mode-card { background: #f8f9fa; border: 1.5px solid #ddd; border-radius: 8px; padding: 10px 12px; }
+.mode-card .mode-label { font-size: 13px; font-weight: 700; color: #2c3e50; margin-bottom: 2px; }
+.mode-card .mode-desc { font-size: 12px; color: #555; line-height: 1.4; }
+.mode-card.active-mode { border-color: #2c3e50; background: #eaf0fb; }
+.na-default { opacity: 0.6; }
+.nav-row { display: flex; gap: 10px; margin-top: 20px; margin-bottom: 30px; }
+.btn { flex: 1; padding: 14px; border-radius: 10px; border: none; font-size: 15px; font-weight: 700; cursor: pointer; }
+.btn-back { background: #e0e0e0; color: #444; }
+.btn-next { background: #2c3e50; color: white; }
+.btn-submit { background: #c0392b; color: white; }
+.summary-stat { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; font-size: 14px; }
+.summary-stat:last-child { border-bottom: none; }
+.stat-label { color: #555; }
+.stat-pass { color: #2c3e50; font-weight: 700; }
+.stat-fail { color: #c0392b; font-weight: 700; }
+.stat-na { color: #888; font-weight: 700; }
+.result-banner { border-radius: 12px; padding: 18px; text-align: center; margin-bottom: 16px; }
+.result-banner.all-clear { background: #d1fae5; border: 2px solid #52b788; }
+.result-banner.has-issues { background: #fdf2f2; border: 2px solid #e74c3c; }
+.result-banner h2 { font-size: 20px; margin-bottom: 4px; }
+.result-banner.all-clear h2 { color: #2c3e50; }
+.result-banner.has-issues h2 { color: #c0392b; }
+.result-banner p { font-size: 13px; color: #555; }
+.fail-list-item { background: #fdf2f2; border-left: 4px solid #e74c3c; border-radius: 0 8px 8px 0; padding: 10px 12px; margin-bottom: 8px; font-size: 13px; }
+.fail-list-item strong { display: block; color: #c0392b; margin-bottom: 2px; }
+.email-status { background: #f0f2f5; border-radius: 10px; padding: 14px; font-size: 13px; text-align: center; margin-top: 10px; }
+@media (max-width: 480px) { .mode-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="app-header">
+  <h1>&#x1F6FB; Unit 119 &mdash; Monthly Safety Inspection</h1>
+  <p>2015 Chevy Silverado 3500HD &nbsp;|&nbsp; Plate: D95431F &nbsp;|&nbsp; Bella Terra Landscaping</p>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+</div>
+<div class="section-tabs">
+  <div class="tab active" onclick="goToSection(0)" id="tab0">1. Inspector Info</div>
+  <div class="tab" onclick="goToSection(1)" id="tab1">2. Vehicle &amp; Body</div>
+  <div class="tab" onclick="goToSection(2)" id="tab2">3. Fluids</div>
+  <div class="tab" onclick="goToSection(3)" id="tab3">4. 4WD &amp; Towing</div>
+  <div class="tab" onclick="goToSection(4)" id="tab4">5. Review &amp; Submit</div>
+</div>
+<div class="content">
+
+  <!-- SECTION 1: Inspector Info -->
+  <div class="section-page active" id="section0">
+    <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMDAsKCwsNDhIQDQ4RDgsLEBYQERMUFRUVDA8XGBYUGBIUFRT/2wBDAQMEBAUEBQkFBQkUDQsNFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBT/wAARCACzAUUDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD9UiQoJJwBVdr5QflUt79KbfOcqnbqaqUAW/t/+x+tH2//AGP1qpRQBb+3/wCx+tH2/wD2P1qpRQBb+3/7H60fb/8AY/WqlFAFv7f/ALH60fb/APY/WqlFAFv7f/sfrR9v/wBj9aqUUAW/t/8AsfrR9v8A9j9aqUUAW/t/+x+tH2//AGP1qpRQBb+3/wCx+tH2/wD2P1qpRQBb+3/7H60fb/8AY/WqlFAFv7f/ALH60fb/APY/WqlFAFv7f/sfrR9v/wBj9aqUUAW/t/8AsfrR9v8A9j9aqUUAW/t/+x+tH2//AGP1qpRQBb+3/wCx+tH2/wD2P1qpRQBb+3/7H60fb/8AY/WqlFAFv7f/ALH60fb/APY/WqlFAFv7f/sfrR9v/wBj9aqUUAW/t/8AsfrR9u/2P1qpRQBoxXCy8Dg+hqWspWKsCOorUVtyg+ozQAtFFFAFG9/1o/3ar1Yvf9aP92q9ABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRTTIMkDkjtR5gx1H50AOoqpPq9nbf6y5iT/ecCs+fxpotv97UIifRDu/lQBt0Vy8nxH0VMhZZJD6JE39QKrv8AE/TlOFs71/dUX/4qnZk3SOworjv+Fn2PewvRxn7qf/FVRT4wWV27iz064uEjJDyl1WNSOo3ZIyKfKx3R39FeeD4y6eASbOWTacMIH8zb9cCpovjJpDYElnqEGe8kHy/mD/SjlYuZHe0Vx0HxZ8OTMFN4Y2PZkbj64FXIviP4eldVGpwqW5G87f5/UUrDudLRWVD4q0i4YLFqVrIT02zLzV9LuOUExujgdSrA0WC5NRQDkUUhhRRRQAUUUUAFFFFABRRRQAVpw/6pP90VmVpw/wCqT/dFAD6KKKAKN7/rR/u1Xqxe/wCtH+7VegAooooAKKKKACiiigAooooAKKKxvEnirT/C1k91qFytug4RMZeRuyqBySfSgDVeZUDEkDAz17V574u+N2i+HHeC2V9UnAO5oGAiT2Lk9fpn3xXj3xE+Nt14gne3DmysMHbao3J75kbvkfgPeuV0bwNqHjCKO7vrs6fpxO6FIxullX8OBQB1/iL9qnUowyWllbQNnAbec/yPP0NeZeJv2kfEcrM7XkUSvzGpR3z7ZJx+lesaT4H0HRYlS3sIHY/emuR5jMffOaxviX4E0rxF4Yfz5RpkFnuuTJaRJyqqRg56UAeFyfGvxbcktPqiRFjwkUMYI+pxmqsvxK8VXf3PEN8M9hIEA/IVwtvDtO8Ejf8Ac3AfMPc16/8AChPDiaPcXWoyWhumlwUu2A2KBxjJ75P5CmmBi2mteIL0hpvEOpPnqPtLH9a3rOa5jVTLqt+zk/xXT5x9M8110mqeBp3WBbrSDPJwqrKuSeOBiuG1rRZ/EvxMs/C/hxRbs6CS5ZWLLbR4+eQ8nopGB3JAHXhq72JdkejeANKbxVPcXU95djRLEETSS3DYnbH3Ac9O5P0HfIo/Gf44aV8LvD0czwRuZcrpmioQuVHHmOOdo745PbrnHUeKtd0j4feGPsMeLfR9Ki+aIkAzSfwpnoWLEE+pIr598UfCCz8f+IJtd8S3l3cXsqhfssMgSGFeyKQMkDue55rS9tyFqeJ+KP2jfHviy7eSXXp9NgY/La2BMMajsPl5P4k1g/8ACz/GG8MviXVFfP3vtTH+temeNrD4b/DC+Swbw1da5dtEJcGY7FBJA3MSf5ViWfxe8M6aAbb4c2SRryQ1zzj6lBWV2XY9G/ZY+J2vat4m1fQNe1i91MXdstzZm8m8zy3jOHVSTkZVlOP9imftJfELx98O/G8J0jXJ00XUrdZ7aIQJIkbKAsi/Mp54Vv8Agdee6d4ns/D3xa8NeK9NQ2unX0iT+SBjYrsY5E/Bt447CvrD4g2Ed/ogm2JPJbPvUlQSEY4OP8/wiqWwutj5NsP2oviJaR7ZprW/HH/Hxp0age5KBTXtv7PP7W+p674xg0HVoLfSNVlDNZ3NoxWC5ZRloWjZiQ2wFhk4YK3QgZRbaIA5gibA5baOP84r5/8AjFp9x4M8e6drunjy2d0vYGHASeJgSf0H1yB3pKSTHY/Ynwv4gi8R6Lb3sWFLjDx90cdRWuOa+ff2cPiDb67bWZjfbZ6vbLeQAn7rFQSv1xkfUV9AqMKBSaBC0UUUigooooAKKKKACiiigArTh/1Sf7orMrTh/wBUn+6KAH0UUUAUb3/Wj/dqvVi9/wBaP92q9ABRVa7vrexQvc3MVunrK4UfrWHd/EDQ7Xj7cJ8f88FLj8xx+tOzFdHS0VxM/wATbYD91ZXH/bYCP/Gq7fE5nO1LMFj0G4n+goswujvqK8+b4ham/wBzT1A9cNVeTxlrkh+QQR57ED/Gq5GLmR6TTXOB1wO9eYv4h8QSfeuVTPTy1WhLrXJ3Ik1R4wRjnGMflT5GLmNTx98VbDwhG9tBIl7q2D/o6HKwj+9Kw+6PQdSegxkj5f8AGnxBu9dv5rie/F3eFSuByQvcKo6D2r3ebwJpkkkk15IkzyMXkdzksT1JqtB4K8LWk/mwWcHmgY8yKEBsf7wo5PMXP5Hi3hjwpF4p05VignENwALnUrxBvfH8ECZJAyPvH/61eqadbWuh2MNrb/uoIB5KAyAjj3J5rWm0Tw9ECHsYnBGMPGDx+IqtJbaNEoCaZbqF6AQqMfpT5PMalcrvdRohLOgUc5LAYrzH4++MbXT/AId3lrZ3kFzc3jrbhIXUvjOW4HPSvT2l06M7ksog3bCComvrfOVtIwc55QUezE52Pg55fIG1TtCfKcjHPXj88Vd1u8t4bpo7WVZoFRFDqRgnYu79c19oazaaZrlsbbUNLs7qBuonhVgPfJ6fhXjus/sueDdV1Ca4jlv7FGOfs0EuI0+mc/lmj2Y1K5806jrS2zxYY+aWxHGhy7N2wB/nJr7C+Gnhu6+Gvglta1dVfxXrfl+a0nBiXHyR/RRlm+jHtXK+Fv2ZvB3hbxJYaysl5eTWUgljiu3DRFsHBYY5AODjocCvStdt5NXuoZru6LxoSVTYAFJGN2fxx9GNNQsJu58V/tOfEu78Sa8vh/S5pZ9P0+TM8kZx5lz1+Y9sdvQ1zXiD4q6xrlzJNcatLbp3itpDGiYGMcdea4743+AvFvhXxlrEEelancwPctIs0du5jlRmJD7hwf6Vwui6Le6vGyyz3ocHmJYTIQfwzUy1HFWPQbnxmol82e/lmlxjfI5YkfU1ktqp1h3uQfMi2jkDoaS2+FN1fD/kBeJLw9hHYTn/ANBStzTfhzr+mReVaeDvEqp6f2TcsP8A0CsyyKTUN3hm3hUsZ7a4leNj/CG2ED/vrefxr7q8L6ovibwNpV7GRJHf2CMS394ovH6/oa+JpvA3i2S3ZI/B3iUsccLotyP/AGnX0T8JPG+o+Fvh/pGkap4R8Wx3VmXjcRaBdSLsDts5Cf3CtaLREve55bqv7RYsb+e0Hh1i0MrRENdYJYEg8beBwah+I2uQfEf4TRa/FA0FxZXgVo85KqTsYZ9OUP4VzXxD+HniXXfG2tajpHg7xNJpt3ctNEW0S5U4b28uq2meDviVYaNdaPB4V8QxafdtmWKXR5wrE47tGMHgd6hp7hc+nv2QPG00nw/tSsg+2aJfNGgz0QkOufY5YV+iel30Wqaba3kBJhnjWRc9cEZ596/L79mDwP4z8DahqiazobabpOoRod1xOokV0yAQgJPIIHOOlfbvgL4yaF4Y8PQabrt/JbXUUjCIJazTFkznP7tWxgkjmra0BM9uorzcftCeBMD/AInci+x0+5BH/kKn/wDDQXw//wChgA9zaz//ABFRYo9Forzg/tBfD09fFNsvuUkX+a08ftBfDjHPjHS1/wCuk4X+eKQHolFeeH9oX4YIAX+IXhiAf9NtWgj/APQmFPg/aA+GF1Jsh+I3hOZj/DHrlqx/IPQB6BRXNWnxI8JXuDb+KtFuAenlajC38mrWttc0+9INvfWs4PTyp1bP5GgC/WnD/qk/3RWWrBxkVqQ/6pP90UAPooooAo3xAmXJxxXl3xO8f3miTLp+irA963E00wYrGMZCjH8XOfQZr0/UD+/UAkfLz+tfm7+3R8ZfF3gL4122laF4vm8Oad/Z0dzLbRXVrAJnaaUbszKWP+r/AITxQB77LqfiO9JeR4U3HlxbGQZ+pOalgk8S9rsEDj5LHH8zXwDrn7S/iSH7PKPiOwymJFOvgAnPX93Hx+FZjfG7xf4x8R2OmeHvGOoavf3SN5dlZeLNTlklZQWbaqQ54AY8dgaq72uJqK3P0Vew16Ubmu7oDrlY4l/mpqJ9I8SuPk1XUo1PZREP/adfAnxFvfGvgC0sb3xFrWqaLBOMPJf+J9UwzZ7B4AT9cfjXLR/E3TtQ0VxJ4tjvbpcEOdU1SZ+e33AD37UJtq9wsux+jknhzxTIMHVNYZT6Sov8lFZl54b8RRozNfantU4Zm1Bkx+RFfnRa+IdPupd1xPa3cTcE3FnqNwG+oUoT+dchrselyXk8dvpOmsjOTsi8N37qfzmqbvuFkfqT4O1Hwhoup3Q8ZeM5dKn2D7PBNrM3Gc5f75XsOPrmtq9+Mfg/RNQFrafE/wANX0JQOs147GRRkjazQ8Hp3A+lfkLL4N1LVjGNH8OXsyHLH+z9HuI1GeMFG3kcq3fnNbfhv4QeN11AhPCWv/NDISo0e4wRtP8AsdSNw/EU7sLH6lal8b/A7hBq/wAUfC0FgSS4sZJRNLj+DcxAUHByRzgcY60tp+0L8MNTuYbDT/HWm20Y+VWQAwr7ZB4r4e8GeG/G3h3UNd1DTfAurXfnQrFEt/4ZuJ4mj5O0IYjjHynp95VPauq8IJ4t0mx06z03wt4wiuLuHZqaPoN4IlB+VwC0YGcdCPeuDGYuWFUWoOV3bRXsd+FwkMQ5KUrWR9dTfEzSL65kGkahDr9ipIW+s3HkyY+9j+WRVpNeu7qPfFpsu3s0jYH6184/DLTtX8MQz2Or6Ze6aWvGaFb63eFmjZsnAIHevo/RtZh1O28pCFHYV6dJ80FN9TgqRUJOKE36jOAxt4oyehLj+goMWon7xgUeu4mqc2uDzCiPlVOBio31vC/NIqj3OK2MWrl5re9P3pID+dNa2ugPvQ/rWe2uogyZlA/3qY/iCPHEyH/gVAaovFLtD96H9aq3s7qpik2kupHy9M9v5VSl1+P/AJ6r9M1RvNZS4TAdSynhgc0DHXExvYlRiDEw+Yep71wHiLwHYfb/ALTDEuSc5zWzbXcqK6GT7kpC/T/JqKcvNwz8dqVgH6Er2QGXA9ia6m31JVx8w/OuLjVwRl6txs//AD0pWA3/ABJ8QdK8GaPLqmsXiWllGQpc85YnCgAdyeK890H9q7wNrdyYXvbnTnyFAu4SFYn3TcB9TitjXNCtPEumy2GpQRXtnLjfDMu5Tjp17+9cJYfs7+DNO1Bbm20W33odyb8tt59zTA93i1ZJIUdJUeIgbGDZDD1/lStqSkffX865O2tmg3xIQETCgAADoD/WpzBMe9JMLGD8Rfj14Z+Gl1FaatdSyXUgDfZbWPcwQ/xEnA/WsK++Kvh7xTHo/iLQ9Q85tHv4Y7tTCVdLe4YRODuHQFo3Jz/yzrW8YfDPRPHKRf21pdvqLxA+W0qAsvOcBuo5rjPiB8PNM8C/BzxudF0u200ppVzOJIECsWjjZ1JPflQaXUZ7ibpAeoX/AGSelM+2L/eH51jLFJJbpcFiI3UMCfQ80RWss8QeNt6MOCpzTtcDZa+VQTuH50wXcj8orEeo/wAayxpt2BuKkgcnkVLb3rxgIeFPc0cojRFxPnnf/wB9f/XpHmmbjG4d9xBqBJnlOEUuR1CjOPrjpVlLO8k+7bSn/gJqbC1Kz2sD8PZxSg9S6K1Vn8P6LcNiXR9Plz/z0tEP81q+9vdqpJt5QAMklDgVVgjku5iEzuwTtxg4FFhnq/7P/i7QPD2rzeDofsmn3l2hvLaygjCg44Y4AABP649q+mYP9RH3+Ufyr4R8D6NdWn7RHhK7GU3ROj5YAMNrce/Wvu6D/UR/7o/lXKpXlKPY9KtQjSp0pp35lf8AGxJRRRVnGZ2pDdIF6Er1/GvnT4s2/wAGrDxQs3xDl8KxauY/3T+IDD5xjyT8nmc7dxbp3zX0XqJxKM/d288+9fln/wAFQxbn4m+HtSvtJsDplvp8li2o6xazz23m+aZQq+SwIbDt1OODxQB9QWvjX9mqzjRl1fwBAh4G2S34xjt+Nc34l+M/wyj8QWuneDdW8OTNLGwV9Ka3LnKndjHz9Nw+Xtmvyti1zwwEkDy+Bgiudu7RrsgAgdt3PTvmrmi+NdK0iW0vrTUvBVle27uIbmPSLuKRM5zgoRgEHFZ1IKrDkbLhLklzH6Xal+0T4P8ACGq2tvrGradYxS3Ea3E+ogZ8okF2QEEscZ46ZPNdrd/t4fs7QSMV1W0uGQctHZIRj1r8sNQ+JD+KbTfrfifwpqsdu5ZE1HT7qZEzxlVJxn3IJrDg8S6JHcSBdQ8BCEpjH/CNsyZz1O5C35GooUvZQ5b3HUqOpLmaP1Ov/wDgob8B4Mm2ht7ph0PlQJn865zWf+ChHwju4bnyPDdq/lDMjCSJdvPfAr805fEuiylY4tQ+H4csADH4XbP/AI8hFXpPE2nafcvE2reCYXf/AFkY8M7d655DYjwf1FbmZ9NeLv2qrPxH401S+8O+I7rwvpc8cIS3sdTkjjcqmD9wqODz0/irBl/aHkI2y/EC/kUn5kOpTOxHTPUnrx+NeAQfDPxD8Sddtz4R0CXXbeeCaeJ9F0wwQ7VMYOECqMAkAsByTXQ6b+yF8WIrqa6bwDrbeQFnSI2+A+x1JTPbIz+VJuw0rntPif4j6h4WeNtb1jVo1kVGVmmmdRuGVDEE7SRyAxBIplh8XbO8hMbS3t6G4LGF2x+dP1X4WfFjVl8T3yeFtb0Ntai+zTxNbrK8sTAjyyGwFX3HIwKz5vhZ4hsrizSw8I61F9lAf7RMLdF3fKMLubOOuScV5uMxVbDTjGlByuepgsPRxEW60+U9D8DeN7DXbee0tBJHc6fOBMksZRl3qCB+hr1PRPE1zZXipAxZ5TtA9M180+A/DHiLwd4112TWfOZb3ZNEZLmObzAowc+WxAI6YNey6D4hh0rUbW6uUeaOM8qvBLYxXq0pNwUpbs8qpFRm0ndHU+OfG2hfDrTEvvFmvwaRFLkoJWJaU5/hUcn8K8U1T9tX4Y6VM8dtcarfgH78doVVvoSa+Wf2vfiPJ8Qvjfq86yubOwWOxt42PMYVAX4HH32bp2ArxFpODxz6jH+FW5voSkfeNz/wUA8LQOVtPDWp3A7OzRJn8zVE/wDBQCwcnyvCd4w/6a3a8fTFfDfmkDipY7lhnBpc7HZH3FH+3vp8rp5/hK7EYYZMd0pP5HivoT4cfEjR/it4Xh17RriSS3djHJFIMSQyDqjD1H9RX5SW0/nNtYAnHU19WfsPeNJ9E1LxNo6srW1wIroQk5IKkqzD8Cn5U1Jtisj7TjheOaRSpyHzz+FOfp1pPHW/+w9H1HT5cR3QYSydQpXaDnHTrXISPcM7BL8yYOPk3kdfp05/Q1qTY63inoea4xE1GYARTSyyd0G7j8xUv9ma0w+ZJMfWmFjtFYAckfnThMqclgB9a41fD2qyrzkf9tKk/wCER1JkJMgHHeQmkFjr47uPzpiZEALDq3+yKsi6jPSRW+hFcVB4KvWeTdcRr83ck1cXwLNjL3qg+ig0gsdjC6sPvr/30K5b4zeTJ8G/HqtIm7/hH9QIG4Zz9mkpsfgSLG+TUHDegTP9a5P4weE7W2+EvjSQXU8rrol8QAMA/wCjuR39aQWPUtHuLdtOsYWnjLiBAyIwY52jPFa9iitfX6FDFGHj2tvGGJUZIHbnPFcHbeB7GIpJFqMoQgEMigHHtV+bwXp13IWub69kdsZZWC5/SgGehzQwQ2U0hKjahOSfauL0y4N9KECgliAtUpPAmkxQSeQ+ombadm6UFc9s/LXDPrOo+Hb1kWYx3EZBIYA7ffkYp30BIrfHX9ra6+Fnie58OeF9B0/UJ7FQtxeXpYqJCMlVjUjp0JJzxXjUP/BQH4s38F4beDwzHNbrvEf9mSHK98fvvpXz78UPjY3iLxZq90Q1xLcXUrzSyRADduIPQ47DtWH4Uvl1G88yOeJd4wwhGGAPrWfMykj7B+Dn/BRXx3qPxE8O6N410TQbzw/ql/BYSzWVo9vNb+bIsfmAl2DbSwJXHIHWvufTPBIsvihc2Tx/6IVkdDjjnHA/E1+SHijS00C/0O7th+8EtvOjDjcwcEH8xX6V2X7TX9s2EGpXtxDpmuQOUnkjjZklXGQVUdPTFNO4mj1/WPBS23xH8IzxIFZLg8lOwDE8/hX0TB/qI/8AdH8q+WPh1+014c8U+MrHRr/Wre1vlie5DXYW3RlHy8FyOST0r6nt8eRHjptGMfSsOVKTfc6JVZThGD2jt8ySiiimZHnvxP8AiDaeEJ4bUSWsmpTReZHb3F0sPygkbuSCRn09K+JvjV4T8d+LNfl8ReAtV0mw1C+fdfWc5YW0iqpwwEBBZ93GWLdTWt/wUitmj+Jng24xhZNJlQN7rNn/ANnr4m8S+N7zRtUjtbUeWEjDMztw7HOMDsAPSgD1zUtG/aPRma3sNInBOf3UE4B7dZMn9axAf2kLZnW78MWsqkFQEK5+vJrwzxb8e/E/hT7K9o0OJSd255sjp6SD1qnpf7Zvii1JW4S5K9P9G1GWLP5lqAPeG1L9oSEnPhGKQnrtER56d1PanX3iT48RRqf+EFjlGMOGit//AI0f5V5rp37Xvjm6I+yvqYGe+tSD/wBkrdg/au8cJH/ps+qWzE/KBrEjbh/3yKdwOng8T/HSQY/4Vzabe5aK1/8AjFPuPFfxsjVNvw1gnkLKgWG3tnbJOB0txx71zf8Aw1h4sIA/tHWQD/d1WT/4mu40H4weJvEmkW9/F4h1URTbh5cl7I3Q4OeRnkHtSAyrf4bfG3xp4gg1xLr/AIR2+CCxnQ2AljhgY5UMzgqQGUZwo2g8cZr0Kf8AZS+Iep2xj13406UQfvR2+i2M0ZHblmUk/hXn/iXU9Sv4Va4v7m43NhhJKSD1/wA/hXLtBI5JbJPuTQB6He/sM208mL740RIp4xFoton4cXIwKoS/sN+G9LmBuPjPHe8AmOO0tIivPQl53A/AH6VxYsycjbwafFpxQjapUA560dLBs7nu/h/9lv4M+HbyGXVvi5rOo2Kp89kuux26b8ckCGJa6XUfhL+y4rIv/CS6lJbbgkhfxBfSyEf7IDjj3r5oTSmdcbce+OTU0mmNDFJO+USNSxweAAM/WgD5K+I1jp8Hj7xPDoTNcaPHqt1Fp7yMXdrdZmEZLHknaByeTWLDoN1cDPyp9TWhpkMl7cKcHzp23Hb69/1r0mHRrTQdGS5umDXToTGi4Bf3wegoA8tPhHUCm5VVvTB61m3VjcWD7Z4mjP04/Ou/n8Qwo5aMFyQPm5wp7jHerFtqNhr8b2d3EFZmwrE9scdvr+lAHnVhIFk9e1e3fsvaj9g+Kcag48+zlh69ej/+yV5L4h0Cbw9qaxMMwv8ANG46Y7V2nwJvTb/FLQZgcKpm3/TyJP61UdwP0N8OeMLbTdLmtru4fYXEixAFgMqAf5Vov470tCdquT6lM5/D0rxeXXoknJAU7lHJNRyeIowByCfc1vck9mb4kWoYkQOPQDH/ANeoz8TUQHbZsT23Scfyrxz/AISJW58xR7H/APXTD4mhH3nXPseP50XEevn4nzbsraRqfeQmmf8ACzb0bisUA46MCe/1rx5/GFpF9+WNPcvVWT4gadETuvbYD3cD+tK4HsK/EnUi02GgT5h91D/dHqaryfELViT/AKYq+yxr/UGvFG+K+hQozSalAGLHOGz0AHrVGX41eHw2Ev0mPpGCT+lFwPcpPHeqSDJv3B/2QAP0Fcl8TPGGrT/D7xJF/aE5+02E9qieYRlpUMajHuWArzJ/jHYOcQ2t9cE9BDauxP6Vi+IfiPc6zc2OmpomqcXENxOv2Zj+6R9y8Z7sq/kaAPoqPxXqcESRLqVwFRQoHmnoOKryeJ9QIwb+cg9f3prxMePfEEpPkeEtbnH99oQg/U059f8AG8oJj8JGH/r61GKP+tF7AewSa5O33p3b6yE/1rM8VeJU0bwzqV27f6q3d97HBztOP1rx678Y+KNLIk1S20rT4RyQL9ZXA/4Ca4P4jfF+fXtGk0uEo0czBHdGJyByR+eBSclYaR5na+Ho9ZunkkMjb2Z2+bHOckD0611ll8KtV0kxaxpKTSeRiR7YkMzIME++MZ5xR4Z0qa6eG2s13Xt0ypDuxtU/xMfYAH9K2L/w1c2t5fy6Lqd5LqmlMvnuy7Yix5wjgkg4UnB4OOKxvco6TX7pNVk8HRRuHczwq4PGFEgLH8BmvVbnxUiO4SQNliNu6uH/AGe/2bPiD+1d4ik1Pw0bOx0vTWWG71C7nEcdvMw3H5FBdsg5G1cc8kCvquy/4JR+L7vTbk6h8T9OtrvaFgjtdKklGcjJZjKuON3AB5xzVqVgPmL4aPefFr9pfw5oUF/9lhuZRaS3m1D5EG1mmdd4KhgM7SwIDbTg9K/duwRI7G3WNi8axqFYtuyMcHPf618D/Cf/AIJOfDzwnJDeeMfEWteM9SRsskMn9n2jc5xsjJkPvmTB9K+99Pt47OwtoIlVIoolRFUYAAAAAqGBYooopAfEP/BSXRHmm8Aaoq/u0a7s3Pu4jdR/5DevhLX/AAZ4b1lILjUNfuNC1hS0eZ7YTWssQAxjDBlYMeeCMEV+rf7Wfwqufiv8OzZ6dGJdW06VdQtEbI3sgIZBx1ZWYAepFfjH+0jPp2tw28FrJPDq2mXMkVxp88DwzIHC7wVbGCDGPzoAu+J/2fj4oVF0/wAc+HCEJINyl3EfyELjt61n6Z+xLrWoxEp4+8GQTZyPOupwpH18nI/75ryfwnOtvaXmFYYYhfMwXHHr/hW0lzbyIuRLG2OTBdMuT+tAHsUX7Ivj3RIUe08V+CdTbcB5VtqLBz7jfEo/WjU/2eviPIsLXFlYXIQbR9k1K2OB7ZYfyrxua8ls7V3t73UEfgbRfEgc+1O0TxtrqQf8hi/XGRuF25I/OgD1T/hnr4ggjGgySJkZ23sDcfg1eh+BvDOq+GdBstN1a1+y3scku+PeHwGlZl5HHQivlW5+LPjWO9njj8S3kMacqrynkfXFfQ37PHj7UvHHha5Or3n22+sLraZCPmKEDaTx6hvyoA9O13RzBpplK8K4xXNfZ1wDjqM16T4jK3vh+WNAASoYY+tcILNwBzx2oAppbrnpVmK3BPTip47Nqt29mwPNAEltYoVGV5xWD8TbpNF+H3iG5DhSLKZVPozKVX9SK6+G2mAGF4ryT9pbUjpnw5uLYsokvbiOBVHoDuJ/QUAfNvhi5isAk0wDPjjP06V2nhnw3qfxU8TSxmT7NbRDM8pUfuUBxtUcAnoAPxrzSOQyTJEDgKB9K+g/hB5+n2yWiyQ20E8ayzvKcAySMypuYA8LHEz/APA6AKF/4auNI1w6Xo3w/N/psbCMapcgyh+FLsWx0BbsQDjgVR+IvwmjtLea/wBHhNpLChke2U/JIgIy0fPBHp/OvpTSfhPrV5pGtX7/ANkp4diKSaZ4nTWBPaXwD4dSFYeWzBuAygqVwQwJI8q8V+Kb7TfFy6AhSSwijSdj5OfOxK8Ui5PpgdPU+1AHhtkkfjHwpqNhMwN/p0JvLZyMF0BAZPc8j8z6VzngTWZtE1cX1uiSSwxtsZ84ORjoPrW1r9s/hXxzqltASgjkkVUHGEYEYP4E1z1vZG1z5fyE9SKAPa0uPEWuql3F4l8PaZbso+WeV/MXA5+XYR696jlVbcbrv4n2UOeSsUAkA9h8y14y2npISWQMT1J70r2cUShkVWk/ucVpzAevfbvCsYP274lX9772luY8fq1VJdd+GkB3Sa74p1Ej/aCq3/kMfzrzWHwxe6mFSxsru8kJwv2a3aTcT0HHrXR6T+zH8W/EWJNK+HXijUInOA8WkzbR+O2o5wNuXxn8MEbC6FrmoN/01uiufykH8qD8S/B1uuLP4epPj/n6ugTj3zury99Gn8MatfWWsQyadqdjM9rPa3CESRSKdrKy9iCCOcdKuWt9aX86W8QYyE/eOFX8ckYo5rgd3/wu6005Ctl4D0Oy9CRvJ/JRVWb9ozXwAINO0ezySB5dlkj82/pXHa9brCuzfDKUP3oiSpP90Egbj9OOK+ov2M/+Cds/7UXhlvFuo+KH8OeH7fUjZmKOx8ye7jVQZGidmCqdxCcq3IJ56EuwPCJPj/44khBi1RLdSOkNtGv9KxU+MHjK3vLi7j1qZbicKskm1ckDoOnSv1gtP+CQvweg0uS3k1nxTd3AbcLp72JHAx93Cxhff7uc96+XvjR/wSL+JvhAahqPgTWNN8aaTDmWKxkc2mpFMk7QjL5TlVxyHBY9F7UXYHxfd/FDxXecTa7qDD0E5A/IVUtfFFxdX9u2salqdxZhx5wgnxIV/wBktkA/UV6x8Kf2MPi78XvGK+H9O8I6npGJCtzqOs2721taAHkyMwz/AMBG456A1+o3wW/4Je/CP4deFobPxVpkfj7XdzvcajfIY4yWVQVjiBwFBBI3EnLH5vQuwPxLuLg3U8jGSQLnKrI5LY7c9M+vArR0+Y7o0z8qtuH1J/8ArCvuf9oL/gll4u8LeMfGmveEzp0nw8gt59SsFlvSl1bKqbzAyGNt2071XDYZQpLA8V8JWTKjR4BypGSeh6mkB7p8D7G21TUtTup5raMW1sIozdzLDEGY7mZnbhRtQjJ6Zr2vxJpVn4csrGG5dZby7gS6uNOspo5/sxbAB85SVkUbs5xnDe5r5w+Dfm6hNfadbQJd3FwpZbeVQySqoJZSCRkbd3cc4FfRvgbTYiJ59bubG5v7Xy7e8tIhtNtAnzgMq8ITtwBzxgZOKAPav+CSEkmm+PPjHoILC0tntJ0XORlnmHH4KPyr9K1jGAT1x1r85f8AgkzpU174m+MnipcLZXd9BZRAHj5DI/8AKQV+jo5FACbAc8detakIxDGP9kVmVpw/6pP90UAPooooAo3w/ej/AHa+bv2m/wBivwN+0bC99PH/AMI94tjXMOuWKASN7Sr0kX68+hFfSN7/AK0f7tV6AP57/id4GvPhT8QNe8I6q0N3d6PdvaSXNupVJSv8QB5AI7VxqxQM5IkEOTnkZr9vvjP+w78Lvjbrl5rusaZd2WuXLBpb/TbhomkIXbll6Nx7V8Pftv8A/BPdfgz8JNJ8WfDgX2qQ6Nvj14uQ9w8LsStyQB0TO1to4UhiMKxAB8R3SwrbyoLqKR2UgDD5JwcDle1cZI9xazsFzjPQVFLrd6nLPx6FRzTP+EguG6hCO+BQBqs8V3teVfmxjjitXQfEF74TlkOkX0+nyzgCRopSN4688Vy411tvzRqRT49Z3sMW+7HYHBoA9MT41+M4YjENduXUcfOFNVZPjJ4wl5OtyrjjgAf0r3n9k/8A4J8+K/2ovAVz4tk1eLwhownMNhLeWTz/AG4rkSOgDphVYbd3OTuH8Jrh/jd+xZ8VvgVrU1vqvhbUNa0kbng1vQ7aS7tZFH94oCYjz92QKeDjI5IB5ufi34uc5OvXQPorAD+VRn4qeLyxI8RXoz/01x/Subm0+4tnZZYJI2B5DxspH1BGRUezA54oA6n/AIWP4muf9brt9J9ZyP6iue8Xaxe3wtlubue4UMSBLKzAH15NNhj3dOfpVPXx/qAeOP60ASpAYtQDAbtzjj8q+j7Hyrf4feHLl7MXVpcIGuYogQ80oh8raT6/LtGOh+tfOQm/0fdk8kH5evPWvc/BmqapqvgvRdLsIU1CxiuJZpbJcCRo2++ASRgo3zg+jj0oA63QdWn1H4b2ej6Xpdj4etoNSN4dJ1u8Iiu12MjyFvlYFdwPI6qcZ4r02LwUlvbWM1xptrfTWsCw2ktxG77E2qM5PJyVB+bpj3qr/wAKTi8EWWpeJbWxk8R+IorcC2tLwq+9yAFXn7wXjjvg+tGk3WvfDHwtrms+LvEcWs74F/cDbtivWJLRwn+JVXYuRwSXx904APkv4mr9o+KutLCVZjcCDGT94AD06Z//AFV9geEv+CRHxR1u2tLvVvG/hnSre4QS4tluLmRAy5AKtHGM8+tfH3haRtS+I9vfXgMim+F1OoHDjfuI/LP6V99an+394wuVZIDHCnbaw4oA9o+CH/BL34ZfDey8/wAaSv8AEHWGXDSXsZhtEP8AsQqxPpyxNfQfh74B/CPwTYmDTvBHhmygPVWsYn/8eYMa/OTV/wBtHxxqe5W1J0H+ycmuN1X9pDxfqud2s3HX+81AH65WWqeCvCMBjsm0fSIgM+XaIkQ/JQKwNf8A2jPh7oCsL3xJZxFecb81+QGofEjxDqP+vv539jKf8a5jU7651EkzuzE/7RoA9A/4KFaR8NvGvxGufH3w612Ca+1Ns6tpO0rumAA+0RnGPmx86+o3DO5sfGAaSJmYgxNnaTjGfbFe03ugi6cnbn61mS+EQzYMa0AecaYF1G9gjuZDBBvUPMQWKqTyQPp279O9fq/8D/8AgoH8J/hD8NdC8HaN4e1K20/TIFiUkKWlb+N2Pcs2Sa/OuPwcU5EZx/sjNXrbwxIpAjVvwFAH6oW//BTr4eTMB/Zt+mf7yjNX1/4KS/D1sH7LdL7Ec1+W0HhO9fG2Bm99prWs/h5rF1gxWMzg9Nqn/CgD9PYv+Ci/w7lAJin9eRWlB/wUF+Glx1nlUd8ivzR074D+K9UAMGlXPIz/AKtv8K6nTf2OfH+rY2afLHn1Rh/SgD9C7/8Abd+FHiHSrvT7u9Z7S7he3lXHVGUqR+RNfh/8R9Dh8J+Ptd0qznFxYW93ILWZfuyQk5jYfVcGvtzT/wDgnh8SNTxtKwk9N5IqTUf+CTnxE8ROrvrNlayDo0iE4/WgD4a8KeJLjw5rNtf2rmOSI53A9P8APT8a9m1v4zw3Xh6+/s2ytLK71FQtybdmaSQgk/N8o2jJOTk9a97sv+COHxJeYb/GWgwx/wB6SGVj+Qr0zwD/AMEdzp88c3ivx8t3HGwY22l2BQN/wJmJ/QUAe0f8E7tQ8H/DX4CaLoL6tbnxFqMj6jqC5BIlkOQhI67V2j86+xreeO4iDxOsiHoV6V4D8Pv2K/Anw+ETWn22eaIDEksvX8BXu2m6bDptpHbwKVjQYANAFytOH/VJ/uisytOH/VJ/uigB9FFFAFG9/wBaP92q9WL3/Wj/AHar0AMlnjhBLsFAGSTXlnxJ+Pvg3wPaXUGrTfbEkRkktwoKsCMEHPBBFei6xp51G1lhDFA643DtXz74/wD2TrXxzNI09wcN3JNAH5O/tX6F8NNT8X3+p/DuwvNBSaQvNprkSW+4nkxd0H+zyB2r5wm0y5ifHksBX7A+Jf8AgmlHqHnSWt2oc8gN3rzDXv8AgmDrvmH7OyyHsB3oA/Mf7FOTjym/KtXR7AwXsMtxbedCjAtG+cN7HHOK+79R/wCCbnjOxc+XYCUCsiX/AIJ/+PLc/LpO78KAOc8Of8FCPip4Y0Wz0jTry2stNtIlht7e3tVjSJFGAqgcAAAdP/13Zv8AgoJ8VNRXL65NCen7vitF/wBhPx9HjGjt+ApB+wz48J50mQfRaAOS1T9r74h64CbrxFeybuoaQmuV1L4z+JtUBafVJ5d3OGya9YP7DnjwHjSpf++KQ/sN/EAjjSn/ABFAHhV1461CbmWRpc+qivNPFlq0uqtfKpVLj7wxwD/hX1zL+wj8R3+7pLYrHvf2EvipNA0Z0BpFwfl7mgD5OsZt6mNjtK9K7DwZ4vk8PT+WZnizJ5kUkZx5Leo+uSDXeeIP2JfjNoMzGHwLqd4n8It495/ADrXLXP7O/wAVLF/Luvhv4oV/bSpm/kpoA9cs/wBqTxDa2Cq0Gn3joP8Aj5kypJ/vEA4Jry34ifFXWPHU4k1S9WYr80VrH8sUQ9Mf16/pVvR/2U/jHrboLT4Z+J3DHGJrJoh+b4r274cf8EzPjP4juoZdX0W28O27YJN3cKz/AIqM4oA+fvBdkbeJrlmDSTL8u052jNdlAlxKFxExJHTFfoH4C/4Jk22l2qf2zq0c0w4YRDj8K9k0D9hTwJpAjMkLXDqOSx60AflZaaHeXBBW2kYnsBXQ6f8ADzVr0AxWcrkjOAlfrdpH7MXgPSGBTSY3I/vCus074WeGNKx9m0e2TH+wKAPyM0v4A+JNQxs0uYnsdhrrNK/ZG8ZaltKabNz3YEV+sVv4c060/wBVaRKf90VdS3SPhI0UewoA/MDSP2C/FmoFWli8nP8Af6V3Oj/8E59Qm2m8u4oxjnAr9CduRg8D2oC885I96APi3SP+CdujwlTc3W4jGcV3mk/sKeCbAq0sXmkdsV9MAYooA8c0r9lfwHphXbpCNjuwBrqtP+C/hLTCDBo1qCPVBXc0UAY9r4T0myAEOn28eBjhBWhFYwRDCQIn0AqxRQAxUVRgJgewFOCgGlooAKKKKACiiigArTh/1Sf7orMrTh/1Sf7ooAfRRRQBRvf9aP8AdqvVm+H71fpVagAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigArTh/1Sf7orMrTiGIk+goAfRRRQBWvgPLU981SoooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAdGMyKD0JFalFFABRRRQB/9k=" class="truck-photo" alt="Unit 119 - 2015 Chevy Silverado 3500HD">
+    <div class="card">
+      <h2>Inspector Information</h2>
+      <p class="subtitle">Required for L&amp;I and DOT compliance records.</p>
+      <div class="field-row"><label>Inspector Full Name <span class="required-star">*</span></label><input type="text" id="inspectorName" placeholder="Full name - serves as digital signature"></div>
+      <div class="field-row"><label>Inspector Email <span class="required-star">*</span></label><input type="email" id="inspectorEmail" placeholder="Your email address"></div>
+      <div class="field-row"><label>Inspection Date <span class="required-star">*</span></label><input type="date" id="inspectionDate"></div>
+      <div class="field-row">
+        <label>Odometer Reading (miles) <span class="required-star">*</span></label>
+        <input type="number" id="odometer" placeholder="e.g. 87500" oninput="validateOdometer()">
+        <div id="odoHint" style="font-size:12px;color:#888;margin-top:4px;">Include all digits. Do not include tenths. Example: if dash reads 87,542.3 enter 87542.</div>
+        <div id="odoWarning" style="display:none;margin-top:6px;background:#fff3cd;border:1.5px solid #f0ad4e;border-radius:7px;padding:10px;font-size:13px;color:#664d03;"></div>
+        <div id="odoLastKnown" style="font-size:12px;color:#555;margin-top:4px;"></div>
+      </div>
+      <div class="field-row"><label>Does truck need an oil change?</label>
+        <select id="oilChange"><option value="">-- Select --</option><option value="No">No</option><option value="Yes">Yes -- flag for repair</option></select>
+      </div>
+    </div>
+    <div class="nav-row"><button class="btn btn-next" onclick="nextSection(0)">Start Inspection &rarr;</button></div>
+  </div>
+
+  <!-- SECTION 2: Vehicle & Body -->
+  <div class="section-page" id="section1">
+    <div class="card">
+      <h2>Section 2 &mdash; Vehicle &amp; Body</h2>
+      <p class="subtitle">Mark each item Pass, Fail, or N/A. Electrical tools items default to N/A for this truck.</p>
+      <div id="bodyItems"></div>
+      <div class="field-row" style="margin-top:16px;"><label>General Notes &mdash; Vehicle &amp; Body</label><textarea id="bodyNotes" placeholder="Any additional observations..."></textarea></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-back" onclick="prevSection(1)">&larr; Back</button>
+      <button class="btn btn-next" onclick="nextSection(1)">Fluids &rarr;</button>
+    </div>
+  </div>
+
+  <!-- SECTION 3: Fluids -->
+  <div class="section-page" id="section2">
+    <div class="card">
+      <h2>Section 3 &mdash; Fluid Levels &amp; Leaks</h2>
+      <p class="subtitle">Inspect all fluid levels and check for leaks.</p>
+      <div class="info-box"><strong>&#8505; Before checking fluids</strong>Park on level ground. Do NOT open radiator or coolant cap when engine is hot &mdash; wait at least 15 minutes after shutdown.</div>
+      <div id="fluidItems"></div>
+      <div class="field-row" style="margin-top:16px;"><label>General Notes &mdash; Fluids</label><textarea id="fluidNotes" placeholder="Any additional observations..."></textarea></div>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-back" onclick="prevSection(2)">&larr; Back</button>
+      <button class="btn btn-next" onclick="nextSection(2)">4WD &amp; Towing &rarr;</button>
+    </div>
+  </div>
+
+  <!-- SECTION 4: 4WD & Towing -->
+  <div class="section-page" id="section3">
+
+    <!-- 4WD Tutorial -->
+    <div class="card">
+      <h2>&#x1F504; 4WD System &mdash; How to Engage &amp; Disengage</h2>
+      <p class="subtitle">Read before inspecting. The 4WD buttons are on the dash to the left of the steering wheel.</p>
+
+      <div class="mode-grid">
+        <div class="mode-card active-mode">
+          <div class="mode-label">2H &mdash; 2-Wheel High</div>
+          <div class="mode-desc">Normal everyday driving. Rear wheels only. Best fuel economy.</div>
+        </div>
+        <div class="mode-card">
+          <div class="mode-label">4H &mdash; 4-Wheel High</div>
+          <div class="mode-desc">Slippery roads, mud, gravel. Use under 55 mph. OK to engage while moving slowly.</div>
+        </div>
+        <div class="mode-card">
+          <div class="mode-label">4Lo &mdash; 4-Wheel Low</div>
+          <div class="mode-desc">Off-road, heavy pulling, steep grades only. Very slow speeds. Must be stopped to engage.</div>
+        </div>
+        <div class="mode-card">
+          <div class="mode-label">Auto 4WD</div>
+          <div class="mode-desc">Automatically engages 4WD when slip is detected. Fine for mixed conditions.</div>
+        </div>
+      </div>
+
+      <p style="font-size:14px;font-weight:700;color:#2c3e50;margin:14px 0 10px;">How to Engage 4H:</p>
+      <ol class="step-list">
+        <li><div class="step-text">Slow the truck to under <strong>55 mph</strong> or come to a stop.</div></li>
+        <li><div class="step-text">Press the <strong>4H button</strong> on the dash. The 4H indicator light will illuminate.</div></li>
+        <li><div class="step-text">You may feel or hear a slight click as the transfer case engages &mdash; this is normal.</div></li>
+        <li><div class="step-text"><strong>Do not use 4H on dry pavement</strong> &mdash; it causes drivetrain binding and damage.</div></li>
+      </ol>
+
+      <p style="font-size:14px;font-weight:700;color:#2c3e50;margin:14px 0 10px;">How to Engage 4Lo:</p>
+      <ol class="step-list">
+        <li><div class="step-text">Come to a <strong>complete stop</strong>. Place the transmission in <strong>Neutral</strong>.</div></li>
+        <li><div class="step-text">Press and <strong>hold the 4Lo button</strong> for 2&ndash;3 seconds until the 4Lo light illuminates.</div></li>
+        <li><div class="step-text">Place transmission back into Drive or Reverse. <strong>Maximum speed in 4Lo is 25 mph.</strong></div></li>
+      </ol>
+
+      <p style="font-size:14px;font-weight:700;color:#2c3e50;margin:14px 0 10px;">How to Disengage (Return to 2H):</p>
+      <ol class="step-list">
+        <li><div class="step-text">From <strong>4H</strong>: Slow to under 55 mph or stop, then press the <strong>2H button</strong>. Light will go off.</div></li>
+        <li><div class="step-text">From <strong>4Lo</strong>: Come to a complete stop, place in <strong>Neutral</strong>, press <strong>2H</strong> and hold 2&ndash;3 seconds until light goes off. Then shift back to Drive.</div></li>
+        <li><div class="step-text">If the 4WD light stays on after pressing 2H, drive forward slowly about 10&ndash;15 feet &mdash; this releases pressure and allows the transfer case to disengage.</div></li>
+      </ol>
+
+      <div class="warn-box" style="margin-top:12px;">
+        <strong>&#9888; Never use 4Lo or 4H on dry pavement.</strong>
+        It causes drivetrain binding, excessive tire wear, and can damage the transfer case. 4WD is for low-traction surfaces only.
+      </div>
+    </div>
+
+    <!-- 4WD Inspection Items -->
+    <div class="card">
+      <h2>4WD System Inspection</h2>
+      <p class="subtitle">Test and inspect after reading the procedure above.</p>
+      <div id="fourwdItems"></div>
+      <div class="field-row" style="margin-top:16px;"><label>General Notes &mdash; 4WD System</label><textarea id="fourwdNotes" placeholder="Any additional observations..."></textarea></div>
+    </div>
+
+    <!-- Towing -->
+    <div class="card">
+      <h2>Towing Equipment</h2>
+      <p class="subtitle">Mark N/A for any equipment not currently installed on this truck.</p>
+      <div class="warn-box"><strong>&#9888; Safety Note</strong>Never tow with damaged hitch hardware. If any towing component fails, the truck must not be used for towing until repaired and re-inspected.</div>
+      <div id="towItems"></div>
+      <div class="field-row" style="margin-top:16px;"><label>General Notes &mdash; Towing Equipment</label><textarea id="towNotes" placeholder="Any additional observations..."></textarea></div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-back" onclick="prevSection(3)">&larr; Back</button>
+      <button class="btn btn-next" onclick="nextSection(3)">Review &amp; Submit &rarr;</button>
+    </div>
+  </div>
+
+  <!-- SECTION 5: Review & Submit -->
+  <div class="section-page" id="section4">
+    <div id="summaryBanner"></div>
+    <div class="card"><h2>Inspection Summary</h2><div id="summaryStats"></div></div>
+    <div id="failListCard" style="display:none;">
+      <div class="card">
+        <h2 style="color:#c0392b;">&#9888; Items Requiring Repair</h2>
+        <p class="subtitle" style="margin-bottom:12px;">These will be emailed to Brydon &amp; Rena for follow-up.</p>
+        <div id="failList"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Inspector Confirmation</h2>
+      <p style="font-size:13px;color:#555;margin-bottom:14px;line-height:1.6;">By submitting, <strong id="sigName">[Inspector Name]</strong> certifies this inspection was performed personally and all findings are accurate. This record is generated by Bella Terra Landscaping (1342 Dike Road, Woodland WA 98674) and may be provided to Labor &amp; Industries or Washington State Patrol upon request.</p>
+      <div style="background:#f0f2f5;border-radius:8px;padding:12px;font-size:13px;">
+        <div class="summary-stat"><span class="stat-label">Truck</span><span style="font-weight:700;">Unit 119 &mdash; 2015 Chevy Silverado 3500HD (D95431F)</span></div>
+        <div class="summary-stat"><span class="stat-label">Inspector</span><span class="stat-pass" id="confirmName">&mdash;</span></div>
+        <div class="summary-stat"><span class="stat-label">Date</span><span style="font-weight:700;" id="confirmDate">&mdash;</span></div>
+        <div class="summary-stat"><span class="stat-label">Odometer</span><span style="font-weight:700;" id="confirmOdo">&mdash;</span></div>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-back" onclick="prevSection(4)">&larr; Back</button>
+      <button class="btn btn-submit" onclick="submitInspection()">&#10003; Submit &amp; Send Emails</button>
+    </div>
+    <div id="emailStatusBox" style="display:none;"></div>
+  </div>
+
+</div><!-- /content -->
+<script>
+var BRYDON      = "Brydon@1BellaTerra.com";
+var RENA        = "Rena@1BellaTerra.com";
+var TRUCK      = "Unit 119 - 2015 Chevy Silverado 3500HD (Plate: D95431F)";
+var TRUCK_UNIT = "Unit 119";
+var TRUCK_PLATE= "D95431F";
+var CATEGORY    = "Vehicles";
+var SEP        = "==================================================";
+var API_URL     = "https://script.google.com/macros/s/AKfycbxX0fyweYww9Jz2zI96Z_M7Wzho_r0eYEqY8oP98g7dDnKTQJmmshvOeo-gqrtkTG7k/exec";
+
+// Items that default to N/A for this truck
+var NA_DEFAULTS = ["elec_cords","gfci","hand_tools"];
+
+var bodyChecks = [
+  {id:"body",        label:"Body",                                     sub:"All panels, fenders, and guards - check for damage, rust, or missing pieces"},
+  {id:"brakes",      label:"Brakes",                                   sub:"Check pedal feel - must be firm and responsive. HYDRAULIC brakes, NOT air brakes. Do not attempt to adjust. Soft or spongy pedal = flag for repair."},
+  {id:"lights",      label:"Lights",                                   sub:"Headlights (high/low), tail lights, brake lights, turn signals, reverse lights, hazards - test all"},
+  {id:"seatbelts",   label:"Seatbelts",                                sub:"All belts - latch function, webbing condition, no fraying or cuts. All seating positions."},
+  {id:"glass",       label:"Glass and Mirrors",                        sub:"Windshield - no cracks in driver line of sight. All mirrors present, intact, and adjustable."},
+  {id:"tires",       label:"Tires",                                    sub:"Check all tires - tread depth, sidewall damage, inflation. Note any uneven wear. Check dually rear tires for debris between them."},
+  {id:"horn",        label:"Horn",                                     sub:"Test horn - must be audible at a safe distance"},
+  {id:"extinguisher",label:"Fire Extinguisher",                        sub:"Present, gauge in green/charged, pin intact, accessible without tools"},
+  {id:"triangles",   label:"Warning Triangles",                        sub:"3 triangles present and stored in cab"},
+  {id:"elec_cords",  label:"Electrical Cords",                         sub:"Inspect electrical cords for fraying, cuts, or exposed wiring. Defaults N/A - update if tools are present."},
+  {id:"gfci",        label:"GFCI - Ground Fault Circuit Interrupters", sub:"Test GFCI outlets - press Test to confirm it trips, Reset to restore. Defaults N/A - update if present."},
+  {id:"hand_tools",  label:"Electrical Hand Tools",                    sub:"Inspect electrical hand tools - cords, guards, switches. Defaults N/A - update if tools are present."}
+];
+
+var fluidChecks = [
+  {id:"engine_oil",  label:"Engine Oil",                 sub:"Dipstick - between MIN and MAX. Amber/brown is good. Black or milky = needs service."},
+  {id:"coolant",     label:"Coolant / Antifreeze",       sub:"Check reservoir - between MIN and MAX lines. Do NOT open radiator cap when hot."},
+  {id:"fuel",        label:"Fuel Level",                 sub:"Note fuel level - flag if critically low before a scheduled work day"},
+  {id:"wiper",       label:"Wiper Fluid",                sub:"Check reservoir - refill if low"},
+  {id:"brake_fluid", label:"Brake Fluid",                sub:"Reservoir under hood - between MIN and MAX. Clear to light yellow is good. Dark or milky = flag for service."},
+  {id:"trans_fluid", label:"Transmission Fluid",         sub:"Dipstick with engine warm, running, in Park - level in HOT range. Pink/red is good. Dark or burnt smell = flag."},
+  {id:"power_steer", label:"Power Steering Fluid",       sub:"Check reservoir - between MIN and MAX marks"},
+  {id:"transfer_case",label:"Transfer Case Fluid",       sub:"Check for leaks around transfer case. Low fluid causes 4WD failure. Flag any seepage."},
+  {id:"front_diff",  label:"Front Differential",         sub:"Check for leaks at seals and around housing. Note any fresh oil seepage."},
+  {id:"rear_diff",   label:"Rear Differential",          sub:"Check for leaks at seals and around housing. Note any fresh oil seepage."},
+  {id:"leaks",       label:"Fluid Leaks - General Check",sub:"Walk around and under truck - inspect ground below engine, transmission, and axles for fresh drips or stains"}
+];
+
+var fourwdChecks = [
+  {id:"4wd_2h",      label:"2H Mode - Confirm Normal Operation",       sub:"Verify truck is in 2H at start of inspection. 2H indicator light should be on."},
+  {id:"4wd_4h",      label:"4H Engagement Test",                       sub:"On a safe surface (gravel or dirt) press 4H. Confirm light illuminates and transfer case engages. Return to 2H when done."},
+  {id:"4wd_buttons", label:"4WD Button Condition",                     sub:"Inspect all 4WD buttons on dash - no cracks, sticking, or missing labels"},
+  {id:"4wd_light",   label:"4WD Indicator Lights",                     sub:"All mode indicator lights illuminate correctly when that mode is selected"},
+  {id:"4wd_noise",   label:"Transfer Case - No Unusual Noise",         sub:"No grinding, clunking, or whining during 4WD engagement or disengagement"}
+];
+
+var towChecks = [
+  {id:"hitch_ball",    label:"Hitch Ball and Mount",               sub:"Ball for wear, pitting, or cracks. Mount for cracks or bends. Ball nut must be fully tight."},
+  {id:"hitch_rcvr",    label:"Hitch Receiver",                     sub:"Receiver tube for cracks or damage. Hitch pin and clip must be fully inserted and secured."},
+  {id:"safety_chains", label:"Safety Chains",                      sub:"Both chains present, no broken links, hooks latch securely. Chains must cross under tongue when connected."},
+  {id:"trailer_plug",  label:"Trailer Plug - 7-Pin Connector",     sub:"Inspect plug for bent pins or corrosion. Test trailer lights when connected to a trailer."},
+  {id:"breakaway",     label:"Breakaway Cable",                     sub:"Cable present and clipped to tow vehicle (not trailer frame). Check breakaway battery if equipped."},
+  {id:"weight_dist",   label:"Weight Distribution / Sway Control", sub:"If equipped - inspect for damage, proper adjustment, all hardware secure. Mark N/A if not installed."}
+];
+
+var currentSection = 0;
+var results = {};
+
+window.addEventListener("load", function() {
+  document.getElementById("inspectionDate").value = new Date().toISOString().split("T")[0];
+  buildItemList("bodyItems",  bodyChecks);
+  buildItemList("fluidItems", fluidChecks);
+  buildItemList("fourwdItems",fourwdChecks);
+  buildItemList("towItems",   towChecks);
+  // Set N/A defaults for electrical items
+  NA_DEFAULTS.forEach(function(id) { setStatus(id, "na"); });
+  updateProgress();
+  loadLastOdometer();
+});
+
+function buildItemList(containerId, items) {
+  var container = document.getElementById(containerId);
+  container.innerHTML = "";
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i];
+    results[item.id] = {status:"", notes:"", photo:""};
+    var div = document.createElement("div");
+    div.className = "inspect-item";
+    div.id = "item_" + item.id;
+    div.innerHTML =
+      "<div class='item-header'>" +
+        "<div>" +
+          "<div class='item-label'>" + item.label + "</div>" +
+          "<div class='item-sub'>" + item.sub + "</div>" +
+        "</div>" +
+        "<div class='toggle-group'>" +
+          "<button class='toggle-btn pass-btn' data-id='" + item.id + "' data-status='pass'>PASS</button>" +
+          "<button class='toggle-btn fail-btn' data-id='" + item.id + "' data-status='fail'>FAIL</button>" +
+          "<button class='toggle-btn na-btn'   data-id='" + item.id + "' data-status='na'>N/A</button>" +
+        "</div>" +
+      "</div>" +
+      "<div class='item-notes' id='notes_" + item.id + "' style='display:none;'>" +
+        "<input type='text' id='noteText_" + item.id + "' placeholder='Notes or description...'>" +
+        "<label class='photo-upload-btn' for='photoUpload_" + item.id + "'>&#128247; Attach photo (optional)</label>" +
+        "<input type='file' accept='image/*' capture='environment' id='photoUpload_" + item.id + "'>" +
+        "<div id='photoPreview_" + item.id + "'></div>" +
+      "</div>";
+    container.appendChild(div);
+    (function(id) {
+      var ni = div.querySelector("#noteText_" + id);
+      if (ni) ni.addEventListener("input", function() { results[id].notes = this.value; });
+      var pi = div.querySelector("#photoUpload_" + id);
+      if (pi) pi.addEventListener("change", function() { handlePhoto(id, this); });
+    })(item.id);
+  }
+  container.addEventListener("click", function(e) {
+    var btn = e.target.closest(".toggle-btn");
+    if (btn) setStatus(btn.getAttribute("data-id"), btn.getAttribute("data-status"));
+  });
+}
+
+function setStatus(id, status) {
+  results[id].status = status;
+  var itemEl = document.getElementById("item_" + id);
+  if (!itemEl) return;
+  itemEl.className = "inspect-item " + status;
+  var btns = itemEl.querySelectorAll(".toggle-btn");
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove("selected");
+  itemEl.querySelector("." + status + "-btn").classList.add("selected");
+  document.getElementById("notes_" + id).style.display = (status === "fail" || status === "pass") ? "block" : "none";
+}
+
+function handlePhoto(id, input) {
+  if (!input.files || !input.files[0]) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    results[id].photo = e.target.result;
+    document.getElementById("photoPreview_" + id).innerHTML = "<img src='" + e.target.result + "' class='photo-preview'>";
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+function goToSection(n) {
+  var pages = document.querySelectorAll(".section-page");
+  for (var i = 0; i < pages.length; i++) {
+    pages[i].classList.toggle("active", i === n);
+    pages[i].style.display = (i === n) ? "block" : "none";
+  }
+  var tabs = document.querySelectorAll(".tab");
+  for (var i = 0; i < tabs.length; i++) {
+    tabs[i].classList.remove("active","completed");
+    if (i === n) tabs[i].classList.add("active");
+    else if (i < n) tabs[i].classList.add("completed");
+  }
+  currentSection = n;
+  updateProgress();
+  try { window.scrollTo({top:0,behavior:"smooth"}); } catch(e) { window.scrollTo(0,0); }
+  if (n === 4) buildSummary();
+}
+
+function nextSection(from) {
+  if (from === 0 && !validateSection0()) return;
+  goToSection(from + 1);
+}
+function prevSection(from) { goToSection(from - 1); }
+
+function validateSection0() {
+  var missing = [];
+  if (!document.getElementById("inspectorName").value.trim()) missing.push("Inspector Full Name");
+  if (!document.getElementById("inspectorEmail").value.trim()) missing.push("Inspector Email");
+  if (!document.getElementById("odometer").value.trim()) missing.push("Odometer Reading");
+  if (missing.length > 0) { alert("Please fill in the following required fields:\n\n- " + missing.join("\n- ")); return false; }
+  var val = parseFloat(document.getElementById("odometer").value);
+  var last = window._lastOdo;
+  var warn = [];
+  if (val < 1000) warn.push("The odometer reading (" + val + ") looks very low. Are you sure you included all digits?");
+  if (last) {
+    var diff = val - last;
+    if (diff < 0) warn.push("This reading is LOWER than last month (" + last.toLocaleString() + " miles). Please re-check.");
+    if (diff > 10000) warn.push("This reading is " + diff.toLocaleString() + " miles MORE than last month. Please confirm.");
+  }
+  if (warn.length > 0) return confirm("ODOMETER CHECK\n\n" + warn.join("\n\n") + "\n\nTap OK to continue anyway, or Cancel to go back and correct it.");
+  return true;
+}
+
+function updateProgress() {
+  document.getElementById("progressBar").style.width = (currentSection / 4 * 100) + "%";
+}
+
+function loadLastOdometer() {
+  var hint = document.getElementById("odoLastKnown");
+  if (hint) hint.textContent = "Loading last recorded reading...";
+  fetch(API_URL + "?truck=" + encodeURIComponent(TRUCK_UNIT))
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.success && data.last_odometer) {
+        window._lastOdo  = parseFloat(data.last_odometer);
+        window._lastDate = data.last_date || "";
+        if (hint) hint.textContent = "Last recorded reading: " + window._lastOdo.toLocaleString() + " miles" + (window._lastDate ? " (submitted " + window._lastDate + ")" : "");
+      } else {
+        if (hint) hint.textContent = "No prior reading on file yet.";
+      }
+    })
+    .catch(function() { if (hint) hint.textContent = "Could not load last reading (offline?)."; });
+}
+
+function validateOdometer() {
+  var val = parseFloat(document.getElementById("odometer").value);
+  var warning = document.getElementById("odoWarning");
+  if (!val || isNaN(val)) { warning.style.display = "none"; return; }
+  var messages = [];
+  if (val < 1000) messages.push("Reading seems very low. Did you include all digits?");
+  var last = window._lastOdo;
+  if (last) {
+    var diff = val - last;
+    if (diff < 0)       messages.push("This reading (" + val.toLocaleString() + ") is LOWER than last month (" + last.toLocaleString() + " miles). Please re-check.");
+    else if (diff === 0) messages.push("This reading is identical to last month. Please confirm.");
+    else if (diff > 10000) messages.push("This reading is " + diff.toLocaleString() + " miles MORE than last month. Please confirm.");
+  }
+  if (messages.length > 0) { warning.style.display = "block"; warning.innerHTML = "&#9888; " + messages.join("<br><br>&#9888; "); }
+  else { warning.style.display = "none"; }
+}
+
+function buildSummary() {
+  var allItems = bodyChecks.concat(fluidChecks).concat(fourwdChecks).concat(towChecks);
+  var name      = document.getElementById("inspectorName").value.trim();
+  var date      = document.getElementById("inspectionDate").value;
+  var odo       = document.getElementById("odometer").value;
+  var oilChange = document.getElementById("oilChange").value;
+
+  document.getElementById("confirmName").textContent = name;
+  document.getElementById("confirmDate").textContent = date;
+  document.getElementById("confirmOdo").textContent  = odo ? odo + " miles" : "--";
+  document.getElementById("sigName").textContent     = name || "[Inspector Name]";
+
+  var passCount = 0, failCount = 0, naCount = 0, failItems = [];
+  for (var i = 0; i < allItems.length; i++) {
+    var r = results[allItems[i].id];
+    if (r.status === "pass") passCount++;
+    else if (r.status === "fail") { failCount++; failItems.push({label:allItems[i].label, notes:r.notes}); }
+    else if (r.status === "na") naCount++;
+  }
+  if (oilChange === "Yes") failItems.push({label:"Oil Change Required", notes:"Inspector flagged oil change needed"});
+
+  var hasIssues = failItems.length > 0;
+  document.getElementById("summaryBanner").innerHTML = hasIssues
+    ? "<div class='result-banner has-issues'><h2>&#9888; Issues Found</h2><p>" + failItems.length + " item(s) requiring attention. Brydon and Rena will be notified.</p></div>"
+    : "<div class='result-banner all-clear'><h2>&#10003; All Clear</h2><p>All inspected items passed. A record will be sent to you and Rena.</p></div>";
+
+  document.getElementById("summaryStats").innerHTML =
+    "<div class='summary-stat'><span class='stat-label'>Truck</span><span style='font-weight:700;'>" + TRUCK + "</span></div>" +
+    "<div class='summary-stat'><span class='stat-label'>Inspector</span><span class='stat-pass'>" + name + "</span></div>" +
+    "<div class='summary-stat'><span class='stat-label'>Date</span><span style='font-weight:700;'>" + date + "</span></div>" +
+    "<div class='summary-stat'><span class='stat-label'>Odometer</span><span style='font-weight:700;'>" + odo + " miles</span></div>" +
+    "<div class='summary-stat'><span class='stat-label'>Passed</span><span class='stat-pass'>" + passCount + "</span></div>" +
+    "<div class='summary-stat'><span class='stat-label'>Failed / Needs Repair</span><span class='stat-fail'>" + failCount + "</span></div>" +
+    "<div class='summary-stat'><span class='stat-label'>N/A</span><span class='stat-na'>" + naCount + "</span></div>" +
+    "<div class='summary-stat'><span class='stat-label'>Oil Change Needed</span><span style='font-weight:700;'>" + (oilChange || "Not answered") + "</span></div>";
+
+  var failCard = document.getElementById("failListCard");
+  if (hasIssues) {
+    failCard.style.display = "block";
+    var fhtml = "";
+    for (var i = 0; i < failItems.length; i++) {
+      fhtml += "<div class='fail-list-item'><strong>" + failItems[i].label + "</strong><span>" + (failItems[i].notes || "No additional notes") + "</span></div>";
+    }
+    document.getElementById("failList").innerHTML = fhtml;
+  } else { failCard.style.display = "none"; }
+
+  window._failItems = failItems;
+  window._hasIssues = hasIssues;
+}
+
+function submitInspection() {
+  var name       = document.getElementById("inspectorName").value.trim();
+  var email      = document.getElementById("inspectorEmail").value.trim();
+  var date       = document.getElementById("inspectionDate").value;
+  var odo        = document.getElementById("odometer").value;
+  var oilChange  = document.getElementById("oilChange").value;
+  var bodyNotes  = document.getElementById("bodyNotes").value;
+  var fluidNotes = document.getElementById("fluidNotes").value;
+  var fourwdNotes= document.getElementById("fourwdNotes").value;
+  var towNotes   = document.getElementById("towNotes").value;
+  var failItems  = window._failItems || [];
+  var hasIssues  = window._hasIssues || false;
+
+  var sections = [
+    {title:"VEHICLE AND BODY",   items:bodyChecks,   notes:bodyNotes},
+    {title:"FLUIDS",             items:fluidChecks,  notes:fluidNotes},
+    {title:"4WD SYSTEM",         items:fourwdChecks, notes:fourwdNotes},
+    {title:"TOWING EQUIPMENT",   items:towChecks,    notes:towNotes}
+  ];
+  var fullDetail = "", itemLines = "\n--- INSPECTION DETAILS ---\n";
+  for (var s = 0; s < sections.length; s++) {
+    fullDetail  += sections[s].title + ":\n";
+    itemLines   += "\n" + sections[s].title + ":\n";
+    for (var i = 0; i < sections[s].items.length; i++) {
+      var itm = sections[s].items[i];
+      var r   = results[itm.id];
+      var line = "  " + itm.label + ": " + (r.status.toUpperCase() || "NOT CHECKED") + (r.notes ? " - " + r.notes : "") + "\n";
+      fullDetail += line; itemLines += line;
+    }
+    if (sections[s].notes) { fullDetail += "  Notes: " + sections[s].notes + "\n"; itemLines += "  Notes: " + sections[s].notes + "\n"; }
+  }
+  itemLines += "\nOIL CHANGE NEEDED: " + (oilChange || "Not answered") + "\n";
+
+  var recordHeader =
+    "BELLA TERRA LANDSCAPING\n1342 Dike Road, Woodland WA 98674\nTeam@1BellaTerra.com | 360-225-1125\n\n" +
+    "MONTHLY VEHICLE SAFETY INSPECTION RECORD\n" + SEP + "\n\n" +
+    "Truck:      " + TRUCK + "\nDate:       " + date + "\nOdometer:   " + odo + " miles\nInspector:  " + name + " (Digital Signature)\n\n" +
+    "Result:     " + (hasIssues ? "ISSUES FOUND - REPAIR REQUIRED" : "ALL CLEAR - PASSED") + "\n";
+
+  var failLabels = failItems.map(function(f) { return f.label; }).join(", ");
+  fetch(API_URL, {
+    method:"POST",
+    body: JSON.stringify({
+      truck_unit: TRUCK_UNIT, truck_label: TRUCK, truck_plate: TRUCK_PLATE,
+    category:      CATEGORY,
+      inspector: name, email: email, date: date, odometer: odo,
+      oil_change: oilChange, result: hasIssues ? "REPAIR NEEDED" : "PASSED",
+      failed_items: failLabels, notes_body: bodyNotes, notes_fluids: fluidNotes,
+      notes_section3: fourwdNotes + " | TOW: " + towNotes, full_detail: fullDetail
+    })
+  }).catch(function() {});
+
+  var subject, body, mailto;
+  if (!hasIssues) {
+    subject = encodeURIComponent("[Fleet Inspection] Unit 119 - " + date);
+    body    = encodeURIComponent(recordHeader + itemLines + "\n" + SEP + "\nBella Terra Landscaping fleet inspection system.\n");
+    mailto  = "mailto:" + RENA + "?subject=" + subject + "&body=" + body;
+  } else {
+    var fs = "\nITEMS REQUIRING REPAIR:\n\n";
+    failItems.forEach(function(f) { fs += "  FAIL: " + f.label + (f.notes ? ": " + f.notes : "") + "\n"; });
+    subject = encodeURIComponent("[FAILED INSPECTION] Unit 119 - " + date);
+    body    = encodeURIComponent(recordHeader + fs + itemLines + "\n" + SEP + "\nInspected by: " + name + "\n");
+    mailto  = "mailto:" + RENA + "," + BRYDON + "?subject=" + subject + "&body=" + body;
+  }
+  window.location.href = mailto;
+  document.getElementById("emailStatusBox").style.display = "block";
+  document.getElementById("emailStatusBox").innerHTML =
+    "<div class='email-status'><strong style='color:#2c3e50;'>Inspection submitted!</strong><br>" +
+    "<span style='font-size:12px;color:#555;'>Record saved to Google Sheets and email app should have opened.</span></div>";
+  window.scrollTo(0, document.body.scrollHeight);
+}
+</script>
+</body>
+</html>
