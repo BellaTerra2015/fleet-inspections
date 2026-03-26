@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bella Terra Fleet Inspections</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { 
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
+  background: linear-gradient(135deg, #1a3a5c 0%, #2c5f8d 100%);
+  color: #1a1a1a;
+  min-height: 100vh;
+  padding-bottom: 40px;
+}
+
+.header {
+  background: #fff;
+  padding: 24px 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  margin-bottom: 24px;
+}
+
+.header h1 {
+  font-size: 24px;
+  font-weight: 800;
+  color: #1a3a5c;
+  margin-bottom: 4px;
+}
+
+.header p {
+  font-size: 14px;
+  color: #666;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.info-banner {
+  background: rgba(255,255,255,0.95);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.info-banner h2 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a3a5c;
+  margin-bottom: 8px;
+}
+
+.info-banner p {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.6;
+}
+
+.category-section {
+  margin-bottom: 32px;
+}
+
+.category-header {
+  background: rgba(255,255,255,0.95);
+  padding: 14px 20px;
+  border-radius: 10px 10px 0 0;
+  border-bottom: 3px solid #1a3a5c;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.category-header.cdl-header {
+  border-bottom-color: #c0392b;
+}
+
+.category-header h2 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a3a5c;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.category-header.cdl-header h2 {
+  color: #c0392b;
+}
+
+.count-badge {
+  background: #1a3a5c;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.category-header.cdl-header .count-badge {
+  background: #c0392b;
+}
+
+.vehicle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  padding: 16px;
+  background: rgba(255,255,255,0.9);
+  border-radius: 0 0 10px 10px;
+}
+
+.vehicle-card {
+  background: #fff;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 18px;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.vehicle-card:hover {
+  border-color: #1a3a5c;
+  box-shadow: 0 4px 12px rgba(26,58,92,0.2);
+  transform: translateY(-2px);
+}
+
+.vehicle-card.cdl-card:hover {
+  border-color: #c0392b;
+  box-shadow: 0 4px 12px rgba(192,57,43,0.2);
+}
+
+.vehicle-card:active {
+  transform: translateY(0);
+}
+
+.qr-code {
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 12px;
+  background: #fff;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.qr-code img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.vehicle-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a3a5c;
+  margin-bottom: 4px;
+}
+
+.cdl-card .vehicle-name {
+  color: #c0392b;
+}
+
+.vehicle-details {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.inspect-btn {
+  background: #1a3a5c;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  display: inline-block;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.inspect-btn:hover {
+  background: #2c5f8d;
+}
+
+.cdl-card .inspect-btn {
+  background: #c0392b;
+}
+
+.cdl-card .inspect-btn:hover {
+  background: #a93226;
+}
+
+.cdl-badge {
+  display: inline-block;
+  background: #c0392b;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+.footer {
+  text-align: center;
+  padding: 24px;
+  color: rgba(255,255,255,0.8);
+  font-size: 13px;
+}
+
+.footer a {
+  color: rgba(255,255,255,0.9);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.stats-bar {
+  background: rgba(255,255,255,0.95);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.stat {
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 32px;
+  font-weight: 800;
+  color: #1a3a5c;
+  display: block;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #666;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+@media (max-width: 640px) {
+  .vehicle-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .header h1 {
+    font-size: 20px;
+  }
+  
+  .stats-bar {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🚛 Bella Terra Fleet Inspections</h1>
+  <p>1342 Dike Road, Woodland WA 98674 | 360-225-1125</p>
+</div>
+
+<div class="container">
+  
+  <div class="stats-bar">
+    <div class="stat">
+      <span class="stat-number">26</span>
+      <span class="stat-label">Total Units</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">9</span>
+      <span class="stat-label">CDL Trucks</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">10</span>
+      <span class="stat-label">Vehicles</span>
+    </div>
+    <div class="stat">
+      <span class="stat-number">7</span>
+      <span class="stat-label">Trailers</span>
+    </div>
+  </div>
+
+  <div class="info-banner">
+    <h2>📱 How to Use</h2>
+    <p><strong>Scan QR Code:</strong> Point your phone camera at the QR code for your vehicle.<br>
+    <strong>Or Tap Card:</strong> On mobile, tap the vehicle card to open the inspection form.<br>
+    <strong>Monthly Requirement:</strong> All vehicles must be inspected monthly. Failed inspections automatically notify maintenance.</p>
+  </div>
+
+  <!-- CDL TRUCKS SECTION -->
+  <div class="category-section">
+    <div class="category-header cdl-header">
+      <h2>🚚 CDL Trucks - DOT Pre-Trip Required</h2>
+      <span class="count-badge">9 Units</span>
+    </div>
+    <div class="vehicle-grid">
+      
+      <a href="unit101_inspection.html" class="vehicle-card cdl-card">
+        <div class="qr-code" id="qr_101"></div>
+        <div class="vehicle-name">Unit 101 <span class="cdl-badge">CDL</span></div>
+        <div class="vehicle-details">1990 Mack CH613 Dump Truck<br>12 Yd | Plate: RP14104</div>
+        <span class="inspect-btn">DOT Pre-Trip</span>
+      </a>
+
+      <a href="unit102_inspection.html" class="vehicle-card cdl-card">
+        <div class="qr-code" id="qr_102"></div>
+        <div class="vehicle-name">Unit 102 <span class="cdl-badge">CDL</span></div>
+        <div class="vehicle-details">1989 Kenworth W900B Bowie<br>Hydroseeder | Plate: RP14102</div>
+        <span class="inspect-btn">DOT Pre-Trip</span>
+      </a>
+
+      <a href="unit103_inspection.html" class="vehicle-card cdl-card">
+        <div class="qr-code" id="qr_103"></div>
+        <div class="vehicle-name">Unit 103 <span class="cdl-badge">CDL</span></div>
+        <div class="vehicle-details">1984 Freightliner HS2 Bowie<br>1.5 Hydroseeder | Plate: RP14103</div>
+        <span class="inspect-btn">DOT Pre-Trip</span>
+      </a>
+
+      <a href="unit111_inspection.html" class="vehicle-card cdl-card">
+        <div class="qr-code" id="qr_111"></div>
+        <div class="vehicle-name">Unit 111 <span class="cdl-badge">CDL</span></div>
+        <div class="vehicle-details">1989 Peterbilt 357<br>CAD Truck | Plate: RP16504</div>
+        <span class="inspect-btn">DOT Pre-Trip</span>
+      </a>
+
+      <a href="unit113_inspection.html" class="vehicle-card cdl-card">
+        <div class="qr-code" id="qr_113"></div>
+        <div class="vehicle-name">Unit 113 <span class="cdl-badge">CDL</span></div>
+        <div class="vehicle-details">1984 Ford LN9000<br>Ramp Truck | Plate: RP1410</div>
+        <span class="inspect-btn">DOT Pre-Trip</span>
+      </a>
+
+      <a href="unit114_inspection.html" class="vehicle-card cdl-card">
+        <div class="qr-code" id="qr_114"></div>
+        <div class="vehicle-name">Unit 114 <span class="cdl-badge">CDL</span></div>
+        <div class="vehicle-details">2006 Western Star 4900SA<br>Bark Blower | Plate: RP16503</div>
+        <span class="inspect-btn">DOT Pre-Trip</span>
+      </a>
+
+      <a href="unit116_inspection.html" class="vehicle-card cdl-card">
+        <div class="qr-code" id="qr_116"></div>
+        <div class="vehicle-name">Unit 116 <span class="cdl-badge">CDL</span></div>
+        <div class="vehicle-details">2006 Peterbilt 357 Easy Lawn<br>Hydroseeder | Plate: RP24304</div>
+        <span class="inspect-btn">DOT Pre-Trip</span>
+      </a>
+
+      <a href="unit120_inspection.html" class="vehicle-card cdl-card">
+        <div class="qr-code" id="qr_120"></div>
+        <div class="vehicle-name">Unit 120 <span class="cdl-badge">CDL</span></div>
+        <div class="vehicle-details">1995 Freightliner L-80<br>Bark Blower (Greenie) | Plate: RP27819</div>
+        <span class="inspect-btn">DOT Pre-Trip</span>
+      </a>
+
+      <a href="unit122_inspection.html" class="vehicle-card cdl-card">
+        <div class="qr-code" id="qr_122"></div>
+        <div class="vehicle-name">Unit 122 <span class="cdl-badge">CDL</span></div>
+        <div class="vehicle-details">2014 Freightliner N2106<br>24' Curtain Truck | Plate: RP25873</div>
+        <span class="inspect-btn">DOT Pre-Trip</span>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- VEHICLES SECTION -->
+  <div class="category-section">
+    <div class="category-header">
+      <h2>🚙 Vehicles</h2>
+      <span class="count-badge">10 Units</span>
+    </div>
+    <div class="vehicle-grid">
+      
+      <a href="unit104_inspection.html" class="vehicle-card">
+        <div class="qr-code" id="qr_104"></div>
+        <div class="vehicle-name">Unit 104</div>
+        <div class="vehicle-details">2008 Chevy 2500HD Silverado<br>Plate: C85320Z</div>
+        <span class="inspect-btn">Start Inspection</span>
+      </a>
+
+      <a href="unit105_inspection.html" class="vehicle-card">
+        <div class="qr-code" id="qr_105"></div>
+        <div class="vehicle-name">Unit 105</div>
+        <div class="vehicle-details">2003 Chevy S10 Pickup<br>Plate: C30834X</div>
+        <span class="inspect-btn">Start Inspection</span>
+      </a>
+
+      <a href="unit106_inspection.html" class="vehicle-card">
+        <div class="qr-code" id="qr_106"></div>
+        <div class="vehicle-name">Unit 106</div>
+        <div class="vehicle-details">2000 Ford F350 Super Duty<br>Plate: C14206V</div>
+        <span class="inspect-btn">Start Inspection</span>
+      </a>
+
+      <a href="unit109_inspection.html" class="vehicle-card">
+        <div class="qr-code" id="qr_109"></div>
+        <div class="vehicle-name">Unit 109</div>
+        <div class="vehicle-details">2006 GMC Sierra 2500HD<br>Plate: C92745N</div>
+        <span class="inspect-btn">Start Inspection</span>
+      </a>
+
+      <a href="unit112_inspection.html" class="vehicle-card">
+        <div class="qr-code" id="qr_112"></div>
+        <div class="vehicle-name">Unit 112</div>
+        <div class="vehicle-details">2022 Toyota Highlander<br>Rena's | Plate: CBJ8768</div>
+        <span class="inspect-btn">Start Inspection</span>
+      </a>
+
+      <a href="unit115_inspection.html" class="vehicle-card">
+        <div class="qr-code" id="qr_115"></div>
+        <div class="vehicle-name">Unit 115</div>
+        <div class="vehicle-details">2019 Ford F250 Super Duty<br>Brydon's | Plate: D44183F</div>
+        <span class="inspect-btn">Start Inspection</span>
+      </a>
+
+      <a href="unit117_inspection.html" class="vehicle-card">
+        <div class="qr-code" id="qr_117"></div>
+        <div class="vehicle-name">Unit 117</div>
+        <div class="vehicle-details">2023 Nissan Rogue<br>Plate: D97939G</div>
+        <span class="inspect-btn">Start Inspection</span>
+      </a>
+
+      <a href="unit119_inspection.html" class="vehicle-card">
+        <div class="qr-code" id="qr_119"></div>
+        <div class="vehicle-name">Unit 119</div>
+        <div class="vehicle-details">2015 Chevy 3500HD Silverado<br>Plate: D95431F</div>
+        <span class="inspect-btn">Start Inspection</span>
+      </a>
+
+      <a href="unit121_inspection.html" class="vehicle-card">
+        <div class="qr-code" id="qr_121"></div>
+        <div class="vehicle-name">Unit 121</div>
+        <div class="vehicle-details">2013 Chevy 2500HD Silverado<br>Black | Plate: D50475H</div>
+        <span class="inspect-btn">Start Inspection</span>
+      </a>
+
+      <a href="unit123_inspection.html" class="vehicle-card">
+        <div class="qr-code" id="qr_123"></div>
+        <div class="vehicle-name">Unit 123</div>
+        <div class="vehicle-details">2002 International 5 Yd<br>Dump Truck | Plate: D55230J</div>
+        <span class="inspect-btn">Start Inspection</span>
+      </a>
+
+    </div>
+  </div>
+
+  <!-- TRAILERS SECTION -->
+  <div class="category-section">
+    <div class="category-header">
+      <h2>🚛 Trailers</h2>
+      <span class="count-badge">7 Units</span>
+    </div>
+    <div class="vehicle-grid">
+      
+      <a href="unit201_inspection.html" class="vehicle-card">
+        <div class="qr-code" id="qr_201"></div>
+        <div class="vehicle-name">Unit 201</div>
+        <div class="vehicle-details">2020 PJ Dump Trailer<br>6 Yds | Plate: 28242AE</div>
+        <span class="inspect-btn">Start Inspection</span>
+      </a>
+
+      <a href="unit203_inspection.html" class="vehicle-card">
+        <div class="qr-code" id="qr_203"></div>
+        <div class="vehicle-name">Unit 203</div>
+        <div class="vehicle-details">1983 TrailKing<br>Equip Tiltdeck | Plate: 64075AG</div>
+        <span class="inspect-btn">Start Inspection</span>
+      </a>
+
+      <a href="unit204_inspection.html" class="vehicle-card">
+        <div class="qr-code" id="qr_204"></div>
+        <div class="vehicle-name">Unit 204</div>
+        <div class="vehicle-details">Finn Hydro Seeder 0.5<br>Trailer | Plate: 42288AH</div>
+        <span class="inspect-btn">Start Inspection</span>
+      </a>
+
+      <a href="unit205_inspection.html" class="vehicle-card">
+        <div class="qr-code" id="qr_205"></div>
+        <div class="vehicle-name">Unit 205</div>
+        <div class="vehicle-details">2020 Carry-On 7X14<br>Landscape Trailer | Plate: 01466AE</div>
+        <span class="inspect-btn">Start Inspection</span>
+      </a>
+
+      <a href="unit206_inspection.html" class="vehicle-card">
+        <div class="qr-code" id="qr_206"></div>
+        <div class="vehicle-name">Unit 206</div>
+        <div class="vehicle-details">Green Trailer<br>Plate: 5726-Z0</div>
+        <span class="inspect-btn">Start Inspection</span>
+      </a>
+
+      <a href="unit207_inspection.html" class="vehicle-card">
+        <div class="qr-code" id="qr_207"></div>
+        <div class="vehicle-name">Unit 207</div>
+        <div class="vehicle-details">2016 PJ Black Flatdeck<br>Trailer | Plate: 90714AK</div>
+        <span class="inspect-btn">Start Inspection</span>
+      </a>
+
+      <a href="unit208_inspection.html" class="vehicle-card">
+        <div class="qr-code" id="qr_208"></div>
+        <div class="vehicle-name">Unit 208</div>
+        <div class="vehicle-details">2003 Carson Fun Runner<br>Red Lunch Trailer | Plate: 90972AL</div>
+        <span class="inspect-btn">Start Inspection</span>
+      </a>
+
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  <p><strong>Bella Terra Landscaping</strong><br>
+  Fleet Safety & Maintenance System<br>
+  <a href="https://1BellaTerra.com">1BellaTerra.com</a> | <a href="mailto:Team@1BellaTerra.com">Team@1BellaTerra.com</a></p>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+// Generate QR codes for all 26 units
+var baseURL = "https://bellaterra2015.github.io/fleet-inspections/";
+var units = [
+  // CDL Trucks
+  {id: "101", file: "unit101_inspection.html"},
+  {id: "102", file: "unit102_inspection.html"},
+  {id: "103", file: "unit103_inspection.html"},
+  {id: "111", file: "unit111_inspection.html"},
+  {id: "113", file: "unit113_inspection.html"},
+  {id: "114", file: "unit114_inspection.html"},
+  {id: "116", file: "unit116_inspection.html"},
+  {id: "120", file: "unit120_inspection.html"},
+  {id: "122", file: "unit122_inspection.html"},
+  // Vehicles
+  {id: "104", file: "unit104_inspection.html"},
+  {id: "105", file: "unit105_inspection.html"},
+  {id: "106", file: "unit106_inspection.html"},
+  {id: "109", file: "unit109_inspection.html"},
+  {id: "112", file: "unit112_inspection.html"},
+  {id: "115", file: "unit115_inspection.html"},
+  {id: "117", file: "unit117_inspection.html"},
+  {id: "119", file: "unit119_inspection.html"},
+  {id: "121", file: "unit121_inspection.html"},
+  {id: "123", file: "unit123_inspection.html"},
+  // Trailers
+  {id: "201", file: "unit201_inspection.html"},
+  {id: "203", file: "unit203_inspection.html"},
+  {id: "204", file: "unit204_inspection.html"},
+  {id: "205", file: "unit205_inspection.html"},
+  {id: "206", file: "unit206_inspection.html"},
+  {id: "207", file: "unit207_inspection.html"},
+  {id: "208", file: "unit208_inspection.html"}
+];
+
+units.forEach(function(unit) {
+  var qrDiv = document.getElementById("qr_" + unit.id);
+  if (qrDiv) {
+    new QRCode(qrDiv, {
+      text: baseURL + unit.file,
+      width: 124,
+      height: 124,
+      colorDark: "#1a3a5c",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  }
+});
+</script>
+
+</body>
+</html>
