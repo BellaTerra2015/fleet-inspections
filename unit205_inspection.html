@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 205 Monthly Safety Inspection</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f2f5; color: #1a1a1a; }
+.app-header { background: #1a3a5c; color: white; padding: 16px 20px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+.app-header h1 { font-size: 17px; font-weight: 700; line-height: 1.2; }
+.app-header p { font-size: 12px; opacity: 0.75; margin-top: 2px; }
+.progress-bar-wrap { background: rgba(255,255,255,0.2); height: 4px; border-radius: 2px; margin-top: 10px; }
+.progress-bar { background: #5dade2; height: 4px; border-radius: 2px; transition: width 0.4s ease; }
+.section-tabs { display: flex; background: #fff; border-bottom: 2px solid #e0e0e0; overflow-x: auto; scrollbar-width: none; }
+.section-tabs::-webkit-scrollbar { display: none; }
+.tab { padding: 10px 16px; font-size: 12px; font-weight: 600; color: #666; white-space: nowrap; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+.tab.active { color: #1a3a5c; border-bottom-color: #1a3a5c; }
+.tab.completed { color: #5dade2; }
+.content { max-width: 680px; margin: 0 auto; padding: 16px; }
+.section-page { display: none; }
+.section-page.active { display: block; }
+.card { background: #fff; border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.card h2 { font-size: 16px; font-weight: 700; color: #1a3a5c; margin-bottom: 4px; }
+.card .subtitle { font-size: 12px; color: #666; margin-bottom: 16px; }
+.field-row { margin-bottom: 14px; }
+.field-row label { display: block; font-size: 13px; font-weight: 600; color: #333; margin-bottom: 5px; }
+.field-row input, .field-row textarea, .field-row select { width: 100%; border: 1.5px solid #ddd; border-radius: 8px; padding: 10px 12px; font-size: 14px; color: #1a1a1a; background: #fafafa; }
+.field-row input:focus, .field-row textarea:focus, .field-row select:focus { outline: none; border-color: #1a3a5c; background: #fff; }
+.field-row textarea { min-height: 70px; resize: vertical; }
+.required-star { color: #c0392b; }
+.inspect-item { border: 1.5px solid #e8e8e8; border-radius: 10px; padding: 14px; margin-bottom: 10px; }
+.inspect-item.pass { border-color: #52b788; background: #f0fdf4; }
+.inspect-item.fail { border-color: #e74c3c; background: #fdf2f2; }
+.inspect-item.na { border-color: #bbb; background: #f9f9f9; }
+.item-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.item-label { font-size: 14px; font-weight: 600; color: #222; flex: 1; line-height: 1.3; }
+.item-sub { font-size: 12px; color: #666; margin-top: 2px; font-weight: 400; }
+.toggle-group { display: flex; gap: 6px; flex-shrink: 0; }
+.toggle-btn { padding: 6px 10px; border-radius: 6px; border: 1.5px solid #ddd; background: #fff; font-size: 11px; font-weight: 700; cursor: pointer; color: #666; }
+.toggle-btn.pass-btn.selected { background: #1a3a5c; border-color: #1a3a5c; color: #fff; }
+.toggle-btn.fail-btn.selected { background: #c0392b; border-color: #c0392b; color: #fff; }
+.toggle-btn.na-btn.selected { background: #888; border-color: #888; color: #fff; }
+.item-notes { margin-top: 10px; }
+.item-notes input { width: 100%; border: 1.5px solid #ddd; border-radius: 7px; padding: 8px 10px; font-size: 13px; background: #fff; }
+.photo-upload-btn { margin-top: 8px; display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; background: #f0f2f5; border: 1.5px dashed #bbb; border-radius: 7px; font-size: 12px; color: #555; cursor: pointer; }
+.photo-preview { max-width: 120px; max-height: 90px; border-radius: 6px; margin-top: 6px; }
+input[type="file"] { display: none; }
+.nav-row { display: flex; gap: 10px; margin-top: 20px; margin-bottom: 30px; }
+.btn { flex: 1; padding: 14px; border-radius: 10px; border: none; font-size: 15px; font-weight: 700; cursor: pointer; }
+.btn-back { background: #e0e0e0; color: #444; }
+.btn-next { background: #1a3a5c; color: white; }
+.btn-submit { background: #c0392b; color: white; }
+.summary-stat { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; font-size: 14px; }
+.summary-stat:last-child { border-bottom: none; }
+.stat-label { color: #555; }
+.stat-pass { color: #1a3a5c; font-weight: 700; }
+.stat-fail { color: #c0392b; font-weight: 700; }
+.stat-na { color: #888; font-weight: 700; }
+.result-banner { border-radius: 12px; padding: 18px; text-align: center; margin-bottom: 16px; }
+.result-banner.all-clear { background: #d1fae5; border: 2px solid #52b788; }
+.result-banner.has-issues { background: #fdf2f2; border: 2px solid #e74c3c; }
+.result-banner h2 { font-size: 20px; margin-bottom: 4px; }
+.result-banner.all-clear h2 { color: #1a3a5c; }
+.result-banner.has-issues h2 { color: #c0392b; }
+.result-banner p { font-size: 13px; color: #555; }
+.fail-list-item { background: #fdf2f2; border-left: 4px solid #e74c3c; border-radius: 0 8px 8px 0; padding: 10px 12px; margin-bottom: 8px; font-size: 13px; }
+.fail-list-item strong { display: block; color: #c0392b; margin-bottom: 2px; }
+.email-status { background: #f0f2f5; border-radius: 10px; padding: 14px; font-size: 13px; text-align: center; margin-top: 10px; }
+</style>
+</head>
+<body>
+<div class="app-header">
+  <h1>🚛 Unit 205 — Monthly Safety Inspection</h1>
+  <p>2020 Carry-On 7X14 Landscape Trailer &nbsp;|&nbsp; Plate: 01466AE &nbsp;|&nbsp; Bella Terra Landscaping</p>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+</div>
+<div class="section-tabs">
+  <div class="tab active" onclick="goToSection(0)" id="tab0">1. Inspector Info</div>
+  <div class="tab" onclick="goToSection(1)" id="tab1">2. Trailer Inspection</div>
+  <div class="tab" onclick="goToSection(2)" id="tab2">3. Review & Submit</div>
+</div>
+<div class="content">
+  <div class="section-page active" id="section0">
+    <div class="card">
+      <h2>Inspector Information</h2>
+      <p class="subtitle">Required to submit this inspection</p>
+      <div class="field-row">
+        <label>Inspector Name <span class="required-star">*</span></label>
+        <input type="text" id="inspectorName" placeholder="Your full name" required>
+      </div>
+      <div class="field-row">
+        <label>Inspector Email <span class="required-star">*</span></label>
+        <input type="email" id="inspectorEmail" placeholder="your.email@1BellaTerra.com" required>
+      </div>
+      <div class="field-row">
+        <label>Inspection Date <span class="required-star">*</span></label>
+        <input type="date" id="inspectionDate" required>
+      </div>
+      <div class="field-row">
+        <label>Current Odometer / Hours <span class="required-star">*</span></label>
+        <input type="text" id="odometer" placeholder="Miles or hours (for trailers: tow vehicle miles)" required>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-next" onclick="nextSection()">Next: Trailer Inspection</button>
+    </div>
+  </div>
+
+  <div class="section-page" id="section1">
+    <div class="card">
+      <h2>Trailer Safety Inspection</h2>
+      <p class="subtitle">Check all components before towing</p>
+    </div>
+    <div id="trailerChecksContainer"></div>
+    <div class="card">
+      <div class="field-row">
+        <label>Section Notes (Optional)</label>
+        <textarea id="trailerNotes" placeholder="Any additional comments about trailer condition..."></textarea>
+      </div>
+    </div>
+    <div class="nav-row">
+      <button class="btn btn-back" onclick="prevSection()">Back</button>
+      <button class="btn btn-next" onclick="nextSection()">Review & Submit</button>
+    </div>
+  </div>
+
+  <div class="section-page" id="section2">
+    <div class="card">
+      <h2>Inspection Summary</h2>
+      <p class="subtitle">Review before submitting</p>
+      <div class="summary-stat">
+        <span class="stat-label">Inspector:</span>
+        <span id="summaryInspector">—</span>
+      </div>
+      <div class="summary-stat">
+        <span class="stat-label">Date:</span>
+        <span id="summaryDate">—</span>
+      </div>
+      <div class="summary-stat">
+        <span class="stat-label">Odometer:</span>
+        <span id="summaryOdo">—</span>
+      </div>
+      <div class="summary-stat">
+        <span class="stat-label">Items Passed:</span>
+        <span class="stat-pass" id="summaryPass">0</span>
+      </div>
+      <div class="summary-stat">
+        <span class="stat-label">Items Failed:</span>
+        <span class="stat-fail" id="summaryFail">0</span>
+      </div>
+      <div class="summary-stat">
+        <span class="stat-label">Items N/A:</span>
+        <span class="stat-na" id="summaryNA">0</span>
+      </div>
+    </div>
+    <div id="resultBanner"></div>
+    <div id="failItemsList"></div>
+    <div class="nav-row">
+      <button class="btn btn-back" onclick="prevSection()">Back</button>
+      <button class="btn btn-submit" onclick="submitInspection()">Submit Inspection</button>
+    </div>
+    <div id="emailStatusBox" style="display:none;"></div>
+  </div>
+</div>
+
+<script>
+// CONFIGURATION
+var TRUCK_UNIT  = "205";
+var TRUCK       = "Unit 205 - 2020 Carry-On 7X14 Landscape Trailer";
+var TRUCK_PLATE = "01466AE";
+var CATEGORY    = "Trailers";
+var RENA        = "Rena@1BellaTerra.com";
+var BRYDON      = "Brydon@1BellaTerra.com";
+var API_URL     = "https://script.google.com/macros/s/AKfycbxX0fyweYww9Jz2zI96Z_M7Wzho_r0eYEqY8oP98g7dDnKTQJmmshvOeo-gqrtkTG7k/exec";
+var SEP         = "=".repeat(70);
+
+// INSPECTION ITEMS
+var trailerChecks = [
+  {id:"t01", label:"Coupling/Hitch", sub:"Secure connection, no cracks, properly latched"},
+  {id:"t02", label:"Safety Chains", sub:"Both present, no damage, properly attached"},
+  {id:"t03", label:"Breakaway Cable/Switch", sub:"Connected and functional"},
+  {id:"t04", label:"Tires - Front Axle", sub:"Adequate tread, proper inflation, no damage"},
+  {id:"t05", label:"Tires - Rear Axle", sub:"Adequate tread, proper inflation, no damage"},
+  {id:"t06", label:"Wheel Bearings", sub:"No excessive play or noise"},
+  {id:"t07", label:"Lights - Tail/Brake", sub:"All functioning, lenses intact"},
+  {id:"t08", label:"Lights - Turn Signals", sub:"Both sides working"},
+  {id:"t09", label:"Wiring Harness", sub:"No exposed wires, connector clean"},
+  {id:"t10", label:"Frame/Undercarriage", sub:"No cracks, rust, or structural damage"},
+  {id:"t11", label:"Fenders", sub:"Secure, no missing parts"},
+  {id:"t12", label:"License Plate", sub:"Visible, properly mounted"},
+  {id:"l01", label:"Bed/Deck Surface", sub:"No holes, floor secure"},
+  {id:"l02", label:"Side Rails/Gate", sub:"Secure, latches functional"},
+  {id:"l03", label:"Ramp (if equipped)", sub:"Functional, no damage"},
+  {id:"l04", label:"Tie-Down Points", sub:"All present and secure"}
+];
+
+// STATE
+var currentSection = 0;
+var results = {};
+
+// INIT
+function init() {
+  document.getElementById("inspectionDate").valueAsDate = new Date();
+  renderChecks("trailerChecksContainer", trailerChecks);
+  updateProgress();
+}
+
+function renderChecks(containerId, items) {
+  var html = "";
+  for (var i = 0; i < items.length; i++) {
+    var item = items[i];
+    results[item.id] = {status:"", notes:""};
+    html += 
+      '<div class="inspect-item" id="item_' + item.id + '">' +
+      '  <div class="item-header">' +
+      '    <div>' +
+      '      <div class="item-label">' + item.label + '</div>' +
+      '      <div class="item-sub">' + item.sub + '</div>' +
+      '    </div>' +
+      '    <div class="toggle-group">' +
+      '      <button class="toggle-btn pass-btn" onclick="setStatus(\'' + item.id + '\',\'pass\')">PASS</button>' +
+      '      <button class="toggle-btn fail-btn" onclick="setStatus(\'' + item.id + '\',\'fail\')">FAIL</button>' +
+      '      <button class="toggle-btn na-btn" onclick="setStatus(\'' + item.id + '\',\'na\')">N/A</button>' +
+      '    </div>' +
+      '  </div>' +
+      '  <div class="item-notes" id="notes_' + item.id + '" style="display:none;">' +
+      '    <input type="text" placeholder="Describe the issue or reason..." onchange="setNotes(\'' + item.id + '\',this.value)">' +
+      '    <label class="photo-upload-btn">' +
+      '      📷 Add Photo' +
+      '      <input type="file" accept="image/*" capture="environment" onchange="handlePhoto(\'' + item.id + '\',this)">' +
+      '    </label>' +
+      '    <div id="photo_' + item.id + '"></div>' +
+      '  </div>' +
+      '</div>';
+  }
+  document.getElementById(containerId).innerHTML = html;
+}
+
+function setStatus(id, status) {
+  results[id].status = status;
+  var item = document.getElementById("item_" + id);
+  item.className = "inspect-item " + status;
+  var btns = item.querySelectorAll(".toggle-btn");
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove("selected");
+  item.querySelector("." + status + "-btn").classList.add("selected");
+  document.getElementById("notes_" + id).style.display = (status === "fail") ? "block" : "none";
+  updateProgress();
+}
+
+function setNotes(id, notes) {
+  results[id].notes = notes;
+}
+
+function handlePhoto(id, input) {
+  if (input.files && input.files[0]) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      results[id].photo = e.target.result;
+      document.getElementById("photo_" + id).innerHTML = '<img src="' + e.target.result + '" class="photo-preview">';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+
+function goToSection(n) {
+  if (n < 0 || n > 2) return;
+  if (n > currentSection) {
+    if (currentSection === 0 && !validateSection0()) return;
+  }
+  document.getElementById("section" + currentSection).classList.remove("active");
+  document.getElementById("tab" + currentSection).classList.remove("active");
+  currentSection = n;
+  document.getElementById("section" + currentSection).classList.add("active");
+  document.getElementById("tab" + currentSection).classList.add("active");
+  if (currentSection === 2) buildSummary();
+  window.scrollTo(0, 0);
+  updateProgress();
+}
+
+function nextSection() {
+  if (currentSection === 0 && !validateSection0()) return;
+  goToSection(currentSection + 1);
+}
+
+function prevSection() {
+  goToSection(currentSection - 1);
+}
+
+function validateSection0() {
+  var name = document.getElementById("inspectorName").value.trim();
+  var email = document.getElementById("inspectorEmail").value.trim();
+  var date = document.getElementById("inspectionDate").value;
+  var odo = document.getElementById("odometer").value;
+  if (!name || !email || !date || !odo) {
+    alert("Please fill in all required fields before continuing.");
+    return false;
+  }
+  return true;
+}
+
+function updateProgress() {
+  var checked = 0;
+  for (var i = 0; i < trailerChecks.length; i++) {
+    if (results[trailerChecks[i].id].status) checked++;
+  }
+  var pct = Math.round((checked / trailerChecks.length) * 100);
+  document.getElementById("progressBar").style.width = pct + "%";
+  
+  if (checked === trailerChecks.length) {
+    document.getElementById("tab1").classList.add("completed");
+  }
+}
+
+function buildSummary() {
+  var name = document.getElementById("inspectorName").value;
+  var date = document.getElementById("inspectionDate").value;
+  var odo = document.getElementById("odometer").value;
+  
+  document.getElementById("summaryInspector").textContent = name;
+  document.getElementById("summaryDate").textContent = date;
+  document.getElementById("summaryOdo").textContent = odo;
+  
+  var passCt = 0, failCt = 0, naCt = 0;
+  var failItems = [];
+  
+  for (var i = 0; i < trailerChecks.length; i++) {
+    var r = results[trailerChecks[i].id];
+    if (r.status === "pass") passCt++;
+    else if (r.status === "fail") { failCt++; failItems.push(trailerChecks[i]); }
+    else if (r.status === "na") naCt++;
+  }
+  
+  document.getElementById("summaryPass").textContent = passCt;
+  document.getElementById("summaryFail").textContent = failCt;
+  document.getElementById("summaryNA").textContent = naCt;
+  
+  var hasIssues = failCt > 0;
+  var banner = document.getElementById("resultBanner");
+  if (hasIssues) {
+    banner.innerHTML = 
+      '<div class="result-banner has-issues">' +
+      '  <h2>⚠️ Repair Required</h2>' +
+      '  <p>' + failCt + ' item(s) failed inspection and must be addressed.</p>' +
+      '</div>';
+  } else {
+    banner.innerHTML = 
+      '<div class="result-banner all-clear">' +
+      '  <h2>✅ All Clear</h2>' +
+      '  <p>This trailer passed all inspection items.</p>' +
+      '</div>';
+  }
+  
+  var failList = document.getElementById("failItemsList");
+  if (hasIssues) {
+    var html = '<div class="card"><h2>Failed Items</h2><p class="subtitle">These require attention before towing</p>';
+    for (var i = 0; i < failItems.length; i++) {
+      var item = failItems[i];
+      var r = results[item.id];
+      html += '<div class="fail-list-item"><strong>' + item.label + '</strong>' + (r.notes ? r.notes : 'No notes provided') + '</div>';
+    }
+    html += '</div>';
+    failList.innerHTML = html;
+  } else {
+    failList.innerHTML = '';
+  }
+}
+
+function submitInspection() {
+  var name = document.getElementById("inspectorName").value.trim();
+  var email = document.getElementById("inspectorEmail").value.trim();
+  var date = document.getElementById("inspectionDate").value;
+  var odo = document.getElementById("odometer").value;
+  var trailerNotes = document.getElementById("trailerNotes").value.trim();
+  
+  var failItems = [];
+  var hasIssues = false;
+  
+  for (var i = 0; i < trailerChecks.length; i++) {
+    var r = results[trailerChecks[i].id];
+    if (r.status === "fail") {
+      hasIssues = true;
+      failItems.push({label: trailerChecks[i].label, notes: r.notes});
+    }
+  }
+  
+  var itemLines = "\n--- INSPECTION DETAILS ---\n\nTRAILER SAFETY:\n";
+  for (var i = 0; i < trailerChecks.length; i++) {
+    var item = trailerChecks[i];
+    var r = results[item.id];
+    itemLines += "  " + item.label + ": " + (r.status.toUpperCase() || "NOT CHECKED") + (r.notes ? " - " + r.notes : "") + "\n";
+  }
+  if (trailerNotes) itemLines += "  Section Notes: " + trailerNotes + "\n";
+
+  var recordHeader =
+    "BELLA TERRA LANDSCAPING\n" +
+    "1342 Dike Road, Woodland WA 98674\n" +
+    "Team@1BellaTerra.com | 360-225-1125\n\n" +
+    "MONTHLY TRAILER SAFETY INSPECTION RECORD\n" +
+    SEP + "\n\n" +
+    "Trailer:    " + TRUCK + "\n" +
+    "Date:       " + date + "\n" +
+    "Odometer:   " + odo + "\n" +
+    "Inspector:  " + name + " (Digital Signature)\n\n" +
+    "Result:     " + (hasIssues ? "ISSUES FOUND - REPAIR REQUIRED" : "ALL CLEAR - PASSED") + "\n";
+
+  var subject, body, mailto;
+  if (!hasIssues) {
+    subject = encodeURIComponent("[Fleet Inspection] Unit 205 - " + date);
+    body    = encodeURIComponent(recordHeader + itemLines + "\n" + SEP + "\nBella Terra Landscaping fleet inspection system.\n");
+    mailto  = "mailto:" + RENA + "?subject=" + subject + "&body=" + body;
+  } else {
+    var failSummary = "\nITEMS REQUIRING REPAIR:\n\n";
+    for (var i = 0; i < failItems.length; i++) {
+      failSummary += "  FAIL: " + failItems[i].label + (failItems[i].notes ? ": " + failItems[i].notes : "") + "\n";
+    }
+    subject = encodeURIComponent("[FAILED INSPECTION] Unit 205 - " + date);
+    body    = encodeURIComponent(recordHeader + failSummary + itemLines + "\n" + SEP + "\nInspected by: " + name + "\nBella Terra Landscaping fleet inspection system.\n");
+    mailto  = "mailto:" + RENA + "," + BRYDON + "?subject=" + subject + "&body=" + body;
+  }
+
+  // Save to Google Sheets
+  var fullDetail = "";
+  for (var i = 0; i < trailerChecks.length; i++) {
+    var itm = trailerChecks[i];
+    var r2  = results[itm.id];
+    fullDetail += itm.label + ": " + (r2.status.toUpperCase() || "NOT CHECKED") + (r2.notes ? " - " + r2.notes : "") + "\n";
+  }
+  var failLabels = failItems.map(function(f) { return f.label; }).join(", ");
+  var payload = {
+    truck_unit:    TRUCK_UNIT,
+    truck_label:   TRUCK,
+    truck_plate:   TRUCK_PLATE,
+    category:      CATEGORY,
+    inspector:     name,
+    email:         email,
+    date:          date,
+    odometer:      odo,
+    result:        hasIssues ? "REPAIR NEEDED" : "PASSED",
+    failed_items:  failLabels,
+    notes_trailer: trailerNotes,
+    full_detail:   fullDetail
+  };
+  fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify(payload)
+  }).catch(function() {}); // silent fail — email is the backup
+
+  window.location.href = mailto;
+  document.getElementById("emailStatusBox").style.display = "block";
+  document.getElementById("emailStatusBox").innerHTML =
+    "<div class='email-status'><strong style='color:#1a3a5c;'>✓ Inspection submitted!</strong><br>" +
+    "<span style='font-size:12px;color:#555;'>Record saved to Google Sheets. Your email app should have opened with the report. If email did not open, check that a default mail app is set on this device.</span></div>";
+  window.scrollTo(0, document.body.scrollHeight);
+}
+
+window.onload = init;
+</script>
+</body>
+</html>
